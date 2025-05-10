@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.relay.datecode_management.RelayDateCodeMapper">
+
+    <resultMap id="getDateCodes-result"
+               type="pidvn.modules.relay.datecode_management.models.DateCodeVo">
+
+        <result column="qa_card" property="qaCard" javaType="String"/>
+        <result column="date_code" property="dateCode" javaType="String"/>
+        <result column="user_code" property="userCode" javaType="Integer"/>
+        <result column="employee_name" property="employeeName" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="customer_code" property="customerCode" javaType="String"/>
+
+    </resultMap>
+    <select id="getDateCodes" resultMap="getDateCodes-result">
+        SELECT D.*, U.name employee_name FROM relay_date_code D
+        inner join users U on D.user_code = U.id
+        where 1 = 1
+        and D.qa_card = #{qaCard}
+        order by D.id desc
+    </select>
+
+    <resultMap id="getAllDateCode-result"
+               type="pidvn.modules.relay.datecode_management.models.DateCodeVo">
+        <result column="qa_card" property="qaCard" javaType="String"/>
+        <result column="date_code" property="dateCode" javaType="String"/>
+        <result column="user_code" property="userCode" javaType="Integer"/>
+        <result column="record_type" property="recordType" javaType="String"/>
+        <result column="employee_name" property="employeeName" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="customer_code" property="customerCode" javaType="String"/>
+    </resultMap>
+    <select id="getAllDateCode" resultMap="getAllDateCode-result">
+        SELECT D.*, U.name employee_name FROM relay_date_code D
+        inner join users U on D.user_code = U.id
+        where 1 = 1
+        and D.date between DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+        order by D.id desc
+    </select>
+
+
+    <resultMap id="getQaCards-result"
+               type="pidvn.modules.relay.datecode_management.models.QaCardVo">
+        <result column="lot_no" property="qaCard" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+    </resultMap>
+    <select id="getQaCards" resultMap="getQaCards-result">
+        select L.lot_no, L.created_at from lots L
+        where L.label_type = 'QA' and L.type = 'Q'
+        and L.date between DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+        order by L.date desc
+    </select>
+
+
+    <resultMap id="getMaterialScanned-result"
+               type="pidvn.modules.relay.datecode_management.models.ModelVo">
+        <result column="receive_qty" property="receiveQty" javaType="Float"/>
+        <result column="scan_qty" property="scanQty" javaType="Float"/>
+    </resultMap>
+    <select id="getMaterialScanned" resultMap="getMaterialScanned-result">
+    with
+    T01 as (
+        select A.model, sum(A.qty) qty from pur_wh_records A
+        where 1=1
+        and A.record_type = 'RDC'
+        and A.qa_card LIKE CONCAT('%', #{qaCard}, '%')
+        group by A.model
+        order by A.model asc
+    ),
+    T02 as (
+        select A.cpn, sum(qty) qty from material_controls A
+        where 1=1
+        and A.record_type = 'CDL'
+        and A.plotno LIKE CONCAT('%', #{qaCard}, '%')
+        group by A.cpn
+    )
+    select T01.model, T01.qty receive_qty, T02.qty scan_qty from T01
+    left join T02 on T01.model = T02.cpn
+    </select>
+</mapper>

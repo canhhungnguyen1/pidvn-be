@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.is.device_management.DeviceMngMapper">
+
+    <resultMap id="getUsers-result"
+               type="pidvn.modules.is.device_management.models.UserDto">
+        <result column="code_name" property="codeName" javaType="String"/>
+    </resultMap>
+    <select id="getUsers" resultMap="getUsers-result">
+        SELECT A.username, concat(A.username, ' - ', A.name) code_name FROM users A where status = 1
+    </select>
+
+    <resultMap id="getDeviceTransactions-result"
+               type="pidvn.modules.is.device_management.models.DeviceTransactionDto">
+        <result column="device_name" property="deviceName" javaType="String"/>
+    </resultMap>
+    <select id="getDeviceTransactions" resultMap="getDeviceTransactions-result">
+        SELECT * FROM pidvn.is_device_transaction
+    </select>
+
+</mapper>

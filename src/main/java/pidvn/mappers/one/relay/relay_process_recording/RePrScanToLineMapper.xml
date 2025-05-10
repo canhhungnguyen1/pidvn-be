@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.relay.relay_process_recording.RePrScanToLineMapper">
+
+    <resultMap id="getLotRequestAndLotReceive-result"
+               type="pidvn.modules.relay.relay_process_recording.models.LotDto">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="total_lot_request" property="totalLotRequest" javaType="Integer"/>
+        <result column="total_lot_receive" property="totalLotReceive" javaType="Integer"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+    </resultMap>
+
+    <select id="getLotRequestAndLotReceive" resultMap="getLotRequestAndLotReceive-result">
+        with
+        T01 as (
+            select A.lot_no, A.req_no from pur_wh_records A
+            where 1=1
+            and A.record_type = 'RNP'
+            and A.lot_no = #{lotNo}
+            order by id desc
+        limit 1
+        ),
+        T02 as (
+            select count(*) total_lot_request from pur_wh_records A
+            where 1=1
+            and A.record_type = 'XPA'
+            and A.slip_no = (select T01.req_no from T01)
+        ),
+        T03 as (
+            select count(*) total_lot_receive from pur_wh_records A
+            where 1=1
+            and A.record_type = 'RNP'
+            and A.req_no = (select T01.req_no from T01)
+        )
+        select
+            T01.*,
+            (select * from T02) total_lot_request,
+            (select * from T03) total_lot_receive
+        from T01
+
+    </select>
+
+
+</mapper>

@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.qa.iqc_check.IqcCheckMapper">
+
+    <resultMap id="getIqcRequests-result"
+               type="pidvn.modules.qa.iqc_check.models.IqcRequestVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="status_name" property="statusName" javaType="String"/>
+        <result column="requested_by" property="requestedBy" javaType="String"/>
+        <result column="requested_by_name" property="requestedByName" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="type_name" property="typeName" javaType="String"/>
+        <result column="goods_type" property="goodsType" javaType="String"/>
+    </resultMap>
+    <select id="getIqcRequests" resultMap="getIqcRequests-result">
+        SELECT
+            R.*, S.name AS status_name, U.name requested_by_name,
+            case
+                when R.type = 'sorting' then 'Hàng sorting'
+                when R.type = '6Month' then 'Hàng quá 6 tháng'
+            end as type_name
+        FROM
+            iqc_request R
+        LEFT JOIN
+            iqc_request_status S ON R.status = S.id
+        LEFT JOIN
+            users U ON R.requested_by = U.username
+        WHERE 1 = 1
+
+        <if test="invoice != null and invoice != ''">
+            AND R.invoice = #{invoice}
+        </if>
+
+        <if test="requestNo != null and requestNo != ''">
+            AND R.request_no = #{requestNo}
+        </if>
+
+        <if test="status != null">
+            AND R.status = #{status}
+        </if>
+
+        <if test="fromDate != null and toDate != null">
+            and DATE_FORMAT(R.created_at, '%Y-%m-%d') between DATE_FORMAT(#{fromDate}, '%Y-%m-%d') and DATE_FORMAT(#{toDate}, '%Y-%m-%d')
+        </if>
+        <if test="isAudit == 'TRUE'">
+            and R.id not in (
+                SELECT
+                    R.id
+                FROM
+                    iqc_request R
+                WHERE 1 = 1
+                and R.created_at between '2023-02-01' and '2023-06-19'
+                and R.status = 2
+            )
+        </if>
+
+
+        order by R.created_at desc
+    </select>
+
+
+    <resultMap id="getIqcDataMaster-result"
+               type="pidvn.modules.qa.iqc_check.models.IqcDataVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="lot_group" property="lotGroup" javaType="String"/>
+        <result column="checked_amount" property="checkedAmount" javaType="Integer"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="requested_at" property="requestedAt" javaType="Date"/>
+        <result column="iqc_at" property="iqcAt" javaType="Date"/>
+        <result column="level_of_control_ngoai_quan" property="levelOfControlNgoaiQuan" javaType="String"/>
+        <result column="level_of_control_kich_thuoc" property="levelOfControlKichThuoc" javaType="String"/>
+    </resultMap>
+    <select id="getIqcDataMaster" resultMap="getIqcDataMaster-result">
+
+        -- Master
+        with
+        T01 as (
+            select
+                 R.request_no, P.invoice, R.supplier,  P.model,
+                 L.lot_group, sum(P.qty) as qty, count(P.id) as amount,
+                 R.created_at as requested_at
+            from pur_wh_records P
+            left join lots L on P.lot_no = L.lot_no
+            left join iqc_request R on L.invoice = R.invoice and R.request_no = #{requestNo}
+            where 1 = 1
+            and P.record_type = 'IM'
+            and P.invoice = #{invoice}
+            and P.slip_no = #{requestNo}
+            and P.flag = '1'
+            <if test="lotGroup != null">
+                and L.lot_group = #{lotGroup}
+            </if>
+            <if test="model != null">
+                and P.model = #{model}
+            </if>
+            group by P.model, L.lot_group
+        ),
+        T02 as (
+            select
+                T01.*, M.created_by, M.updated_at as iqc_at, A.checked_amount,
+                CONCAT_WS(';', M.result1, M.result2, M.result3) result_all,
+                M.level_of_control_ngoai_quan,
+                M.level_of_control_kich_thuoc,
+                <choose>
+                    <when test="isAudit == 'TRUE'">
+                        if(M.result1='NG' || M.result1='CA', "OK", M.result1) result1,
+                        if(M.result2='NG' || M.result2='CA', "OK", M.result2) result2,
+                        if(M.result3='NG' || M.result3='CA', "OK", M.result3) result3
+                    </when>
+                    <when test="isAudit == 'FALSE'">
+                        M.result1, M.result2, M.result3, M.remark
+                    </when>
+                </choose>
+            from T01
+            left join iqc_data_master M
+                on T01.lot_group = M.lot_group and T01.model = M.model
+                and M.request_no = #{requestNo} and M.invoice = #{invoice}
+            left join (
+                select
+                    D.request_no, D.lot_group, count(*) checked_amount, L.model, D.invoice
+                from iqc_data_detail D
+                inner join lots L on D.lot_no = L.lot_no
+                group by D.lot_group, L.model
+            ) as A on T01.lot_group = A.lot_group and A.request_no = #{requestNo} and A.invoice = #{invoice} and T01.model = A.model
+        )
+        select T02.* from T02
+        where 1 = 1
+        <if test="isAudit == 'TRUE'">
+            and T02.result_all not like '%NG%'
+        </if>
+        order by T02.model, T02.lot_group;
+
+    </select>
+
+
+    <resultMap id="getIqcDataDetail-result"
+               type="pidvn.modules.qa.iqc_check.models.IqcDataVo">
+        <result column="lot_group" property="lotGroup" javaType="String"/>
+        <result column="lot_no" property="lotNo" javaType="String"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="created_by" property="createdBy" javaType="String"/>
+        <result column="created_by_name" property="createdByName" javaType="String"/>
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="requested_at" property="requestedAt" javaType="Date"/>
+        <result column="iqc_at" property="iqcAt" javaType="Date"/>
+    </resultMap>
+    <select id="getIqcDataDetail" resultMap="getIqcDataDetail-result">
+
+        -- Detail
+        with
+        T01 as (
+            select
+                R.request_no, P.invoice, P.model, L.lot_group, L.lot_no, P.qty
+            from pur_wh_records P
+            left join lots L on P.lot_no = L.lot_no
+            left join iqc_request R on L.invoice = R.invoice and R.request_no = #{requestNo}
+            where 1 = 1
+            and P.record_type = 'IM'
+            and P.invoice = #{invoice}
+            and P.flag = '1'
+            <if test="lotGroup">
+                and L.lot_group = #{lotGroup}
+            </if>
+            and P.model = #{model}
+        ),
+        T02 as (
+            select
+                T01.*, D.id, D.updated_at as iqc_at, D.created_by,
+                (select U.name from users U where U.username = D.created_by) as created_by_name,
+                CONCAT_WS(';', D.result1, D.result2, D.result3) result_all,
+                <choose>
+                    <when test="isAudit == 'TRUE'">
+                        if(D.result1='NG' || D.result1='CA', "OK", D.result1) result1,
+                        if(D.result2='NG' || D.result2='CA', "OK", D.result2) result2,
+                        if(D.result3='NG' || D.result3='CA', "OK", D.result3) result3
+                    </when>
+                    <when test="isAudit == 'FALSE'">
+                        D.result1, D.result2, D.result3, D.remark
+                    </when>
+                </choose>
+            from T01
+            left join iqc_data_detail D on T01.lot_no = D.lot_no and T01.request_no = D.request_no
+        )
+        select T02.* from T02
+        where 1 = 1
+        <if test="isAudit == 'TRUE'">
+            and T02.result_all not like '%NG%'
+        </if>
+
+        order by T02.lot_no asc
+
+
+    </select>
+
+
+    <resultMap id="getIqcDataSortingMaster-result"
+               type="pidvn.modules.qa.iqc_check.models.IqcDataVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="lot_group" property="lotGroup" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="created_by" property="createdBy" javaType="String"/>
+    </resultMap>
+    <select id="getIqcDataSortingMaster" resultMap="getIqcDataSortingMaster-result">
+
+        -- Lấy dữ liệu IQC Sorting Master
+        with
+        T01 as (
+            select R.request_no, L.lot_group, count(*) amount, R.created_at
+            from iqc_request_sorting_detail R
+            left join lots L on R.lot_no = L.lot_no
+            where 1 = 1
+            and R.request_no = #{requestNo}
+            group by L.lot_group
+        ),
+        T02 as (
+            select
+                T01.*, M.result1, M.result2, M.result3, M.remark,
+                M.created_by, M.updated_at, M.id
+            from T01
+            left join iqc_data_sorting_master M on (T01.request_no = M.request_no and T01.lot_group = M.lot_group and M.request_no = #{requestNo})
+        )
+        select * from T02
+
+    </select>
+
+
+    <resultMap id="getIqcDataSortingDetail-result"
+               type="pidvn.modules.qa.iqc_check.models.IqcDataVo">
+        <result column="lot_no" property="lotNo" javaType="String"/>
+        <result column="lot_group" property="lotGroup" javaType="String"/>
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="created_by" property="createdBy" javaType="String"/>
+    </resultMap>
+    <select id="getIqcDataSortingDetail" resultMap="getIqcDataSortingDetail-result">
+        with
+        T01 as (
+            select
+                R.request_no, R.lot_no, L.lot_group
+                from iqc_request_sorting_detail R
+            left join lots L on R.lot_no = L.lot_no
+            where 1 = 1
+            and R.request_no = #{requestNo}
+            and L.lot_group = #{lotGroup}
+        ),
+        T02 as (
+            select
+                T01.*, D.result1, D.result2, D.result3, D.remark,
+                D.created_by, D.created_at, D.updated_at, D.id
+            from T01
+            left join iqc_data_sorting_detail D on (T01.request_no = D.request_no and T01.lot_group = D.lot_group and T01.lot_no = D.lot_no)
+        )
+        select * from T02
+    </select>
+
+
+    <resultMap id="getIqcRequestSortingDetails-result"
+               type="pidvn.entities.one.IqcRequestSortingDetail">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="lot_no" property="lotNo" javaType="String"/>
+        <result column="request_no" property="requestNo" javaType="String"/>
+    </resultMap>
+    <select id="getIqcRequestSortingDetails" resultMap="getIqcRequestSortingDetails-result">
+        select D.* from iqc_request_sorting_detail D
+        left join lots L on D.lot_no = L.lot_no
+        where 1 = 1
+        and D.request_no = #{requestNo}
+        and L.lot_group = #{lotGroup}
+    </select>
+
+
+    <resultMap id="getMucDoKiemSoat-result"
+               type="pidvn.entities.one.IqcDataMaster">
+        <result column="level_of_control_ngoai_quan" property="levelOfControlNgoaiQuan" javaType="String"/>
+        <result column="level_of_control_kich_thuoc" property="levelOfControlKichThuoc" javaType="String"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="created_by" property="createdBy" javaType="String"/>
+    </resultMap>
+    <select id="getMucDoKiemSoat" resultMap="getMucDoKiemSoat-result">
+        SELECT
+            M.level_of_control_kich_thuoc, M.level_of_control_ngoai_quan,M.updated_at, concat(M.created_by, ' - ', U.name ) created_by
+        FROM iqc_data_master M left join users U on M.created_by = U.username
+        where 1 = 1
+        and (M.level_of_control_ngoai_quan is not null or M.level_of_control_kich_thuoc is not null)
+        and M.model = #{model}
+        order by M.updated_at desc
+        limit 10
+
+    </select>
+
+</mapper>

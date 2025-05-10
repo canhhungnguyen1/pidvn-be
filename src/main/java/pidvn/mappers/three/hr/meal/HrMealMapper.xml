@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.three.hr.meal.HrMealMapper">
+
+    <resultMap id="getMealRecords-result"
+               type="pidvn.modules.hr.meal.models.MealRecordVo">
+        <result column="RowNum" property="rowNum" javaType="Integer"/>
+        <result column="CodeEmp" property="codeEmp" javaType="String"/>
+        <result column="ProfileName" property="profileName" javaType="String"/>
+        <result column="TimeLog" property="timeLog" javaType="Date"/>
+        <result column="Date" property="date" javaType="Date"/>
+        <result column="MachineCode" property="machineCode" javaType="String"/>
+        <result column="CanteenCode" property="canteenCode" javaType="String"/>
+        <result column="CanteenName" property="canteenName" javaType="String"/>
+        <result column="LineCode" property="lineCode" javaType="String"/>
+        <result column="LineName" property="lineName" javaType="String"/>
+        <result column="OrgStructureName" property="orgStructureName" javaType="String"/>
+    </resultMap>
+    <select id="getMealRecords" resultMap="getMealRecords-result">
+        with
+        T01 as (
+            SELECT
+                ROW_NUMBER() OVER (ORDER BY TimeLog DESC) as RowNum, A.*,
+                CASE
+                    WHEN FORMAT(A.TimeLog,'HH:mm') <![CDATA[<=]]> '07:30' THEN CAST(FORMAT(DATEADD(DAY, -1, A.TimeLog), 'yyyy-MM-dd') as date )
+                    ELSE CAST(FORMAT(A.TimeLog,'yyyy-MM-dd') as date)
+                END as Date
+            FROM PIDVN_MealRecord A
+            WHERE 1 = 1
+            <if test="empCode != null">
+                and A.CodeEmp = #{empCode}
+            </if>
+            GROUP BY A.CodeEmp, A.ProfileName, A.DateHire, A.WorkDay, A.TimeLog, A.MachineCode, A.Amount, A.CanteenCode, A.CanteenName, A.CanteenName, A.LineCode, A.LineName, A.Code, A.CateringCode, A.CateringName, A.OrgStructureName
+
+        )
+        SELECT * from T01
+        WHERE 1 = 1
+        <if test="dateRange != null and dateRange.size != 0">
+            and (convert(date, T01.Date) <![CDATA[>=]]> convert(date, #{dateRange[0]}) and convert(date, T01.Date) <![CDATA[<=]]> convert(date,#{dateRange[1]}))
+        </if>
+        ORDER BY T01.TimeLog DESC
+    </select>
+
+
+    <resultMap id="getMealRecordsSummary-result"
+               type="pidvn.modules.hr.meal.models.MealRecordVo">
+        <result column="RowNum" property="rowNum" javaType="Integer"/>
+        <result column="TicketType" property="ticketType" javaType="String"/>
+    </resultMap>
+    <select id="getMealRecordsSummary" resultMap="getMealRecordsSummary-result">
+        with
+        T01 as (
+            SELECT
+                A.CodeEmp, A.ProfileName,
+                CASE
+                    WHEN A.LineCode = 'PBS2' THEN N'Suất Phụ'
+                    WHEN A.LineCode = 'PEOC1' THEN N'Suất Phụ'
+                    ELSE N'Suất Chính'
+                END AS TicketType,
+                CASE
+                    WHEN FORMAT(A.TimeLog,'HH:mm') <![CDATA[<=]]> '07:30' THEN CAST(FORMAT(DATEADD(DAY, -1, A.TimeLog), 'yyyy-MM-dd') as date )
+                    ELSE CAST(FORMAT(A.TimeLog,'yyyy-MM-dd') as date)
+                END as Date
+            FROM PIDVN_MealRecord A
+            WHERE 1 = 1
+            <if test="empCode != null">
+                and A.CodeEmp = #{empCode}
+            </if>
+            GROUP BY A.CodeEmp, A.ProfileName, A.DateHire, A.WorkDay, A.TimeLog, A.MachineCode, A.Amount, A.CanteenCode, A.CanteenName, A.CanteenName, A.LineCode, A.LineName, A.Code, A.CateringCode, A.CateringName, A.OrgStructureName
+        ),
+        T02 as (
+            SELECT T01.CodeEmp, T01.ProfileName, T01.TicketType, COUNT(*) as Total FROM T01
+            where 1 = 1
+            <if test="dateRange != null and dateRange.size != 0">
+                and (convert(date, T01.Date) <![CDATA[>=]]> convert(date, #{dateRange[0]}) and convert(date, T01.Date) <![CDATA[<=]]> convert(date,#{dateRange[1]}))
+            </if>
+            GROUP BY T01.CodeEmp, T01.ProfileName, T01.TicketType
+        )
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY T02.CodeEmp DESC) as RowNum,
+            T02.*
+        FROM T02 ORDER BY CodeEmp DESC
+
+    </select>
+
+
+
+    <resultMap id="getBalance-result"
+               type="pidvn.modules.hr.meal.models.MealRecordVo">
+        <result column="CodeEmp" property="codeEmp" javaType="String"/>
+        <result column="ProfileName" property="profileName" javaType="String"/>
+        <result column="TicketTimeSheet" property="ticketTimeSheet" javaType="Integer"/>
+        <result column="TicketActual" property="ticketActual" javaType="Integer"/>
+    </resultMap>
+    <select id="getBalance" resultMap="getBalance-result">
+        <![CDATA[
+            WITH
+            T01 as (
+                -- Dữ liệu ngày công
+                SELECT
+                [CodeEmp], [ProfileName], [NgayCong]
+                , CASE
+                    WHEN CaLamViec = '3HCA' THEN 9.5
+                    WHEN CaLamViec = '3HCA1' THEN 9.5
+                    WHEN CaLamViec = '310A' THEN 10
+                    WHEN CaLamViec = '310B' THEN 10
+                    WHEN CaLamViec = '310S' THEN 10
+                    WHEN CaLamViec = '312A' THEN 12
+                    WHEN CaLamViec = '312B' THEN 12
+                    WHEN CaLamViec = '312S' THEN 12
+                    WHEN CaLamViec = '31242A' THEN 12
+                    WHEN CaLamViec = '31242B' THEN 12
+                    WHEN CaLamViec IS NULL THEN 0
+                    ELSE 8
+                  END WorkingTime
+                , [CaLamViec]
+
+                FROM [PVG].[dbo].[View_PIDVN_AttendanceDetail]
+                WHERE 1 = 1
+                -- AND CodeEmp = '3013755'
+                AND FORMAT(NgayCong, 'yyyy-MM') = '2023-11'
+
+                UNION ALL
+
+                -- Dữ liệu OT
+                SELECT  [CodeEmp]
+                    , [ProfileName]
+                    , [WorkDateRoot]
+                    , SUM([ConfirmHours]) WorkingTime
+                    , null as CaLamViec
+                FROM [PVG].[dbo].[View_ThongTinOT_PIDVN]
+                WHERE 1 = 1
+                AND FORMAT(WorkDateRoot, 'yyyy-MM') = '2023-11'
+                -- AND CodeEmp = '3013755'
+                GROUP BY WorkDateRoot, CodeEmp, ProfileName
+
+            ),
+            T02 as (
+                SELECT T01.CodeEmp,
+                T01.ProfileName,
+                WorkingTime,
+                CASE
+                    WHEN T01.WorkingTime > 11.5 THEN 2
+                    WHEN (T01.WorkingTime >= 8 AND T01.WorkingTime <= 11.5) THEN 1
+                    WHEN T01.WorkingTime = 0 THEN 0
+                    ELSE 0
+                END AS Ticket
+                FROM T01
+            ),
+            T03 as (
+                -- Tổng hợp theo timesheet
+                SELECT
+                    T02.CodeEmp,
+                    T02.ProfileName,
+                    sum(T02.Ticket) Ticket,
+                    'TimeSheet' Type
+                FROM T02
+                WHERE 1 = 1
+                -- AND T02.CodeEmp = '3012982'
+                GROUP BY T02.CodeEmp, T02.ProfileName
+            ),
+            T04 AS (
+                -- Tổng hợp theo Actual
+                SELECT CodeEmp, ProfileName, COUNT(*) Ticket, 'Actual' Type FROM (
+                    SELECT
+                        [CodeEmp], [ProfileName],
+                        CASE
+                            WHEN FORMAT(TimeLog,'HH:mm') <= '07:30' THEN CAST(FORMAT(DATEADD(DAY, -1, TimeLog), 'yyyy-MM-dd') as date )
+                            ELSE CAST(FORMAT(TimeLog,'yyyy-MM-dd') as date)
+                        END as Date
+                    FROM [PVG].[dbo].[PIDVN_MealRecord]
+                    WHERE 1 = 1
+                    AND FORMAT(TimeLog, 'yyyy-MM') = '2023-11'
+                    -- AND CodeEmp = '3012982'
+                    -- AND (convert(date, TimeLog) >= convert(date, '2023-10-16') and convert(date, TimeLog) <= convert(date, '2023-10-31'))
+
+                ) A
+                WHERE 1 = 1
+                -- AND T01.CodeEmp = '3013755'
+                GROUP BY CodeEmp, ProfileName
+            )
+            SELECT T03.CodeEmp, T03.ProfileName, T03.Ticket AS TicketTimeSheet, T04.Ticket AS TicketActual
+            FROM T03
+            LEFT JOIN T04 ON T03.CodeEmp = T04.CodeEmp
+
+        ]]>
+
+    </select>
+
+
+
+    <resultMap id="getAmountTicketByTimeSheetAndActualUserScan-result"
+               type="pidvn.entities.one.EMealData">
+
+        <result column="username" property="username" javaType="String"/>
+        <result column="full_name" property="fullName" javaType="String"/>
+        <result column="ve_chinh_timesheet" property="veChinhTimesheet" javaType="Integer"/>
+        <result column="ve_phu_timesheet" property="vePhuTimesheet" javaType="Integer"/>
+        <result column="ve_chinh_actual" property="veChinhActual" javaType="Integer"/>
+        <result column="ve_phu_actual" property="vePhuActual" javaType="Integer"/>
+        <result column="ve_phu_tro_cap" property="vePhuTroCap" javaType="Integer"/>
+
+    </resultMap>
+    <select id="getAmountTicketByTimeSheetAndActualUserScan"
+            resultMap="getAmountTicketByTimeSheetAndActualUserScan-result">
+        <![CDATA[
+            WITH
+            T01 AS (
+                -- Dữ liệu theo time sheet
+                SELECT
+                    A.*,
+                    CASE
+                        WHEN LeaveCode LIKE '0.25%' THEN (A.ShiftTime*0.75)
+                        WHEN LeaveCode LIKE '0.5%' THEN (A.ShiftTime*0.5)
+                        WHEN LeaveCode LIKE '0.75%' THEN (A.ShiftTime*0.25)
+                        WHEN LeaveCode = '0' THEN A.ShiftTime
+                        ELSE 0
+                    END WorkingTime
+                FROM (
+                    SELECT [CodeEmp], [ProfileName], [NgayCong]
+                    , [CaLamViec]
+                    , CASE
+                        WHEN CaLamViec = '3HCA' THEN 9.5
+                        WHEN CaLamViec = '3HCA1' THEN 9.5
+                        WHEN CaLamViec = '310A' THEN 10
+                        WHEN CaLamViec = '310B' THEN 10
+                        WHEN CaLamViec = '310S' THEN 10
+                        WHEN CaLamViec = '312A' THEN 12
+                        WHEN CaLamViec = '312B' THEN 12
+                        WHEN CaLamViec = '312S' THEN 12
+                        WHEN CaLamViec = '31242A' THEN 12
+                        WHEN CaLamViec = '31242B' THEN 12
+                        WHEN CaLamViec IS NULL THEN 0
+                        ELSE 8
+                    END ShiftTime
+                    , [LeaveCode]
+                    FROM [PVG].[dbo].[View_PIDVN_AttendanceDetail]
+                    WHERE 1 = 1
+                    -- AND CodeEmp = '3000230'
+                    AND FORMAT(NgayCong, 'yyyy-MM') = FORMAT(#{month}, 'yyyy-MM')
+                ) A
+            ),
+            -- Tính vé theo TimeSheet
+            T02 AS (
+                -- Tính ra Total Time
+                SELECT B.CodeEmp, B.ProfileName, B.NgayCong, B.LeaveCode, B.CaLamViec, B.WorkingTime WorkingTime, round(B.ConfirmHours, 2) OTTime,
+                        (B.WorkingTime +  ISNULL(round(B.ConfirmHours, 2), 0) ) TotalWorkingTime FROM (
+                    SELECT T01.*, A.ConfirmHours FROM T01
+                    LEFT JOIN (
+                        -- Dữ liệu OT
+                        SELECT CodeEmp
+                            , [WorkDateRoot] NgayCong
+                            , SUM([ConfirmHours]) ConfirmHours
+                        FROM [PVG].[dbo].[View_ThongTinOT_PIDVN]
+                        WHERE 1 = 1
+                        AND FORMAT(WorkDateRoot, 'yyyy-MM') = FORMAT(#{month} , 'yyyy-MM')
+                        -- AND CodeEmp = '3000230'
+                        GROUP BY WorkDateRoot, CodeEmp, ProfileName
+                    ) A ON T01.CodeEmp = A.CodeEmp AND T01.NgayCong = A.NgayCong
+                ) B
+            ),
+            T03 AS (
+
+                SELECT A.*, (A.VeChinhTimeSheet + A.VeChinhOverTime) VeChinh FROM (
+                    SELECT
+                        T02.*,
+                        CASE
+                            -- Các trường hợp nghỉ
+                            WHEN T02.WorkingTime = 0 THEN 0
+                            -- Ca 12 tiếng: số giờ làm thực tế > 6 => được 2 vé chính
+                            WHEN (T02.WorkingTime = 12 AND T02.WorkingTime > 6) THEN 2
+                            -- Ca 12 tiếng: số giờ làm thực tế < 6 => được 1 vé chính
+                            WHEN (T02.WorkingTime = 12 AND T02.WorkingTime <= 6) THEN 1
+                            ELSE 1
+                        END VeChinhTimeSheet,
+                        CASE
+
+                            -- OT ngày nghỉ: tổng thời gian >= 11.5 => có 2 vé chính
+                            WHEN (T02.CaLamViec IS NULL AND T02.TotalWorkingTime >= 11.5) THEN 2
+
+                            -- OT ngày nghỉ: 10.5 <= TotalWorkingTime < 11.5 => có 1 vé chính
+                            WHEN (T02.CaLamViec IS NULL AND T02.TotalWorkingTime >= 10.5 AND T02.TotalWorkingTime < 11.5) THEN 1
+
+                            -- OT ngày nghỉ: tổng thời gian < 10.5 => có 1 vé chính
+                            WHEN (T02.CaLamViec IS NULL AND T02.TotalWorkingTime < 10.5) THEN 1
+
+                            -- OT ngày thường: tổng thời gian >= 11.5 => có 1 vé chính
+                            WHEN (T02.CaLamViec IS NOT NULL AND T02.OTTime IS NOT NULL AND T02.TotalWorkingTime >= 11.5) THEN 1
+                            ELSE 0
+                        END VeChinhOverTime,
+                        CASE
+                            -- OT ngày nghỉ: 10.5 <= TotalWorkingTime < 11.5 => có 1 vé phụ
+                            WHEN (T02.CaLamViec IS NULL AND T02.TotalWorkingTime >= 10.5 AND T02.TotalWorkingTime < 11.5) THEN 1
+
+                            -- OT ngày thường:  10.5 <= TotalWorkingTime < 11.5 => có 1 vé phụ
+                            WHEN (T02.CaLamViec IS NOT NULL AND T02.OTTime IS NOT NULL AND T02.TotalWorkingTime >= 10.5 AND T02.TotalWorkingTime < 11.5) THEN 1
+                            ELSE 0
+                        END VePhu,
+
+                        CASE
+                            -- Các trường hợp nghỉ
+                            WHEN T02.WorkingTime = 0 THEN 0
+
+                            -- OT ngày thường: tổng thời gian > 11.5 => có 1 vé phụ (cộng 1 vé phụ theo timesheet)
+                            WHEN (T02.CaLamViec IS NOT NULL AND T02.OTTime IS NOT NULL AND T02.TotalWorkingTime > 10.5 AND T02.TotalWorkingTime <= 11.5) THEN 2
+
+                            ELSE 1
+                        END VePhuTroCap
+
+                    FROM T02
+                ) A
+            ),
+            T04 AS (
+                -- Kết quả theo lý thuyết
+                SELECT T03.CodeEmp, T03.ProfileName, SUM(T03.VeChinh) VeChinhTheory, SUM(T03.VePhu) VePhuTheory, SUM(T03.VePhuTroCap) VePhuTroCap FROM T03
+                GROUP BY T03.CodeEmp, T03.ProfileName
+            ),
+
+            T05 AS (
+                -- Tổng hợp theo Actual
+                SELECT A.CodeEmp, SUM(A.VeChinh) VeChinhActual, SUM(A.VePhu) VePhuActual FROM (
+                    SELECT [CodeEmp],
+                        CASE
+                            WHEN LineCode = 'PEOC1' THEN 0
+                            WHEN LineCode = 'PBS2' THEN 0
+                            ELSE 1
+                        END VeChinh,
+                        CASE
+                            WHEN LineCode = 'PEOC1' THEN 1
+                            WHEN LineCode = 'PBS2' THEN 1
+                            ELSE 0
+                        END VePhu,
+
+                        CASE
+                            WHEN FORMAT(TimeLog,'HH:mm') <= '07:30' THEN CAST(FORMAT(DATEADD(DAY, -1, TimeLog), 'yyyy-MM-dd') as date )
+                            ELSE CAST(FORMAT(TimeLog,'yyyy-MM-dd') as date)
+                        END as Date
+                    FROM [PVG].[dbo].[PIDVN_MealRecord]
+                    WHERE 1 = 1
+                    AND (
+                        FORMAT(TimeLog, 'yyyy-MM') = FORMAT(#{month} , 'yyyy-MM')
+                        OR
+                        FORMAT(TimeLog, 'yyyy-MM') = FORMAT(DATEADD(month, 1, #{month}) , 'yyyy-MM')
+                    )
+                    -- AND CodeEmp = '3000230'
+                ) A
+                WHERE 1 = 1
+                AND FORMAT(A.[Date], 'yyyy-MM') = FORMAT(#{month} , 'yyyy-MM')
+                GROUP BY A.CodeEmp
+            ),
+            T06 AS (
+                SELECT T04.*, T05.VeChinhActual, T05.VePhuActual
+                FROM T04
+                LEFT JOIN T05 ON T04.CodeEmp = T05.CodeEmp
+            )
+            SELECT
+                T06.CodeEmp username, T06.ProfileName full_name, #{month} as date, T06.VeChinhTheory ve_chinh_timesheet,
+                T06.VePhuTheory ve_phu_timesheet, T06.VeChinhActual ve_chinh_actual, T06.VePhuActual ve_phu_actual,
+                T06.VePhuTroCap ve_phu_tro_cap
+            FROM T06;
+
+        ]]>
+    </select>
+
+
+    <resultMap id="getAttendanceDetails-result"
+               type="pidvn.entities.one.HrAttendanceDetail">
+        <result column="CodeEmp" property="username" javaType="String"/>
+        <result column="ProfileName" property="profileName" javaType="String"/>
+        <result column="NgayCong" property="ngayCong" javaType="Date"/>
+        <result column="CaLamViec" property="caLamViec" javaType="String"/>
+        <result column="FirstInTime" property="firstInTime" javaType="Date"/>
+        <result column="LastOutTime" property="lastOutTime" javaType="Date"/>
+        <result column="TrangThaiTinhCong" property="trangThaiTinhCong" javaType="String"/>
+        <result column="LeaveCode" property="leaveCode" javaType="String"/>
+
+    </resultMap>
+    <select id="getAttendanceDetails" resultMap="getAttendanceDetails-result">
+        <![CDATA[
+            SELECT
+                 A.CodeEmp
+                ,A.ProfileName
+                ,A.NgayCong
+                ,A.CaLamViec
+                ,A.FirstInTime
+                ,A.LastOutTime
+                ,A.TrangThaiTinhCong
+                ,A.LeaveCode
+            FROM View_PIDVN_AttendanceDetail A
+            where
+                A.NgayCong >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            AND A.NgayCong <= GETDATE()
+        ]]>
+    </select>
+
+
+    <resultMap id="getOvertimeData-result"
+               type="pidvn.entities.one.HrOvertimeData">
+        <result column="CodeEmp" property="username" javaType="String"/>
+        <result column="ProfileName" property="profileName" javaType="String"/>
+        <result column="WorkDateRoot" property="ngayCong" javaType="Date"/>
+        <result column="StatusVN" property="status" javaType="String"/>
+        <result column="MethodPaymentVN" property="methodPayment" javaType="String"/>
+        <result column="RegisterHours" property="registerHours" javaType="Float"/>
+        <result column="ConfirmHours" property="confirmHours" javaType="Float"/>
+        <result column="OvertimeTypeName" property="overtimeTypeName" javaType="String"/>
+        <result column="CodeStatistic" property="codeStatistic" javaType="String"/>
+    </resultMap>
+
+    <select id="getOvertimeData" resultMap="getOvertimeData-result">
+
+        <![CDATA[
+            SELECT [CodeEmp]
+                ,[ProfileName]
+                ,[WorkDateRoot]
+                ,[StatusVN]
+                ,[MethodPaymentVN]
+                ,[RegisterHours]
+                ,[ConfirmHours]
+                ,[OvertimeTypeName]
+                ,[CodeStatistic]
+            FROM [PVG].[dbo].[View_ThongTinOT_PIDVN]
+            WHERE
+                WorkDateRoot >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            AND WorkDateRoot <= GETDATE()
+        ]]>
+    </select>
+
+    <resultMap id="getHrMealRecord-result"
+               type="pidvn.entities.one.HrMealRecord">
+        <result column="CodeEmp" property="username" javaType="String"/>
+        <result column="ProfileName" property="profileName" javaType="String"/>
+        <result column="WorkDay" property="ngayCong" javaType="Date"/>
+        <result column="MachineCode" property="machineCode" javaType="String"/>
+        <result column="Amount" property="amount" javaType="String"/>
+        <result column="CanteenCode" property="canteenCode" javaType="String"/>
+        <result column="CanteenName" property="canteenName" javaType="String"/>
+        <result column="CateringCode" property="cateringCode" javaType="String"/>
+        <result column="CateringName" property="cateringName" javaType="String"/>
+        <result column="LineCode" property="lineCode" javaType="String"/>
+        <result column="LineName" property="lineName" javaType="String"/>
+    </resultMap>
+    <select id="getHrMealRecord" resultMap="getHrMealRecord-result">
+        <![CDATA[
+            SELECT [CodeEmp]
+                ,[ProfileName]
+                ,[DateHire]
+                ,[WorkDay]
+                ,[TimeLog]
+                ,[MachineCode]
+                ,[Amount]
+                ,[CanteenCode]
+                ,[CanteenName]
+                ,[CateringCode]
+                ,[CateringName]
+                ,[LineCode]
+                ,[LineName]
+                ,[OrgStructureName]
+                ,[Code]
+            FROM [PVG].[dbo].[PIDVN_MealRecord]
+            WHERE
+                WorkDay >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            AND WorkDay <= GETDATE()
+
+        ]]>
+    </select>
+
+    <resultMap id="getHrLeaveDay-result"
+               type="pidvn.entities.one.HrLeaveDay">
+        <result column="CodeEmp" property="codeEmp" javaType="String"/>
+        <result column="LeaveDayTypeName" property="leaveDayTypeName" javaType="String"/>
+        <result column="DateStart" property="dateStart" javaType="Date"/>
+        <result column="DateEnd" property="dateEnd" javaType="Date"/>
+        <result column="LeaveDays" property="leaveDays" javaType="Float"/>
+        <result column="LeaveHours" property="leaveHours" javaType="Float"/>
+        <result column="DateCreate" property="dateCreate" javaType="Date"/>
+    </resultMap>
+    <select id="getHrLeaveDay" resultMap="getHrLeaveDay-result">
+        <![CDATA[
+            SELECT
+                CodeEmp,Code,LeaveDayTypeName,LeaveDays,LeaveHours,
+                CONVERT(DATE, DateStart, 103) AS DateStart,
+                CONVERT(DATE, DateEnd, 103) AS DateEnd,
+                CONVERT(DATE, DateCreate, 103) AS DateCreate
+            FROM PIDVN_LeaveDay
+            WHERE 1=1
+            AND CONVERT(DATE, DateStart, 103)
+            BETWEEN CONVERT(DATE, DATEADD(MONTH, -1, DATEADD(DAY, 1 - DAY(GETDATE()), GETDATE()))) AND GETDATE()
+        ]]>
+    </select>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.spare_part.SparePartMapper">
+
+    <resultMap id="getSparePartRecords-result"
+               type="pidvn.modules.spare_part.models.SparePartRecordVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="part_number" property="partNumber" javaType="String"/>
+        <result column="galileo_name" property="galileoName" javaType="String"/>
+        <result column="wh_user_code" property="whUserCode" javaType="String"/>
+        <result column="receive_user_code" property="receiveUserCode" javaType="String"/>
+        <result column="wh_user" property="whUser" javaType="String"/>
+        <result column="other_user" property="otherUser" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="machine_id" property="machineId" javaType="Integer"/>
+        <result column="factory_code" property="factoryCode" javaType="String"/>
+        <result column="goods_type" property="goodsType" javaType="String"/>
+        <result column="rack_type" property="rackType" javaType="String"/>
+        <result column="from_rack" property="fromRack" javaType="String"/>
+        <result column="to_rack" property="toRack" javaType="String"/>
+    </resultMap>
+    <select id="getSparePartRecords" resultMap="getSparePartRecords-result">
+        select distinct
+            A.id, A.request_no, A.part_number, A.date, A.line, A.remark, A.goods_type, A.po, A.supplier,
+            (select U.name from users U where U.username = A.wh_user_code) wh_user,
+            (select U.name from users U where U.username = A.receive_user_code) other_user,
+            A.machine machine_id, A.created_at, A.updated_at, A.wh_user_code, A.receive_user_code,
+            (select B.vn_name from spare_part_machine_standard B where 1 = 1 and B.id = A.machine) machine,
+            B.galileo_name, A.factory_code, A.from_rack, A.to_rack,
+            CASE
+                WHEN A.type = 'INPUT' then A.qty
+                WHEN A.type = 'OUTPUT' then A.qty
+                WHEN A.type = 'OK_RETURN' then A.qty*(-1)
+                WHEN A.type = 'NG_RETURN' then A.qty*(-1)
+                WHEN A.type = 'CHANGE_RACK' then A.qty
+            END as qty,
+            CASE
+                WHEN A.type = 'INPUT' then 'Nhập kho'
+                WHEN A.type = 'OUTPUT' then 'Xuất kho'
+                WHEN A.type = 'OK_RETURN' then 'Trả về (OK)'
+                WHEN A.type = 'NG_RETURN' then 'Trả VỀ (NG)'
+                WHEN A.type = 'CHANGE_RACK' then 'Chuyển Rack'
+            END as type
+        from spare_part_records A
+        left join spare_parts B on (A.part_number = B.part_number and A.goods_type = B.type)
+        where 1 = 1
+        <if test="dateRange != null and dateRange.size != 0">
+            and A.date between #{dateRange[0]} and #{dateRange[1]}
+        </if>
+        order by A.id desc
+
+    </select>
+
+
+
+    <resultMap id="getSparePartRecordsByStandardPrice-result"
+               type="pidvn.modules.spare_part.models.SparePartRecordVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="part_number" property="partNumber" javaType="String"/>
+        <result column="galileo_name" property="galileoName" javaType="String"/>
+        <result column="wh_user_code" property="whUserCode" javaType="String"/>
+        <result column="receive_user_code" property="receiveUserCode" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="standard_price" property="standardPrice" javaType="Float"/>
+        <result column="currency_code" property="currencyCode" javaType="String"/>
+        <result column="total_price" property="totalPrice" javaType="Float"/>
+        <result column="factory_code" property="factoryCode" javaType="String"/>
+
+    </resultMap>
+    <select id="getSparePartRecordsByStandardPrice" resultMap="getSparePartRecordsByStandardPrice-result">
+
+        with
+        T01 as (
+        select
+        A.part_number, B.galileo_name, A.date, A.qty, A.wh_user_code, A.receive_user_code, A.created_at,
+        A.line, C.vn_name machine, A.remark,  A.factory_code, A.request_no,
+        case
+            when A.type = 'OUTPUT' then 'Xuất kho'
+            when A.type = 'OK_RETURN' then 'Trả về kho'
+        end as type
+        from spare_part_records A
+        left join spare_parts B on A.part_number = B.part_number
+        left join spare_part_machine_standard C on A.machine = C.id
+        where 1 = 1
+        <if test="date != null">
+            and DATE_FORMAT(A.date, '%Y-%m') = DATE_FORMAT(#{date}, '%Y-%m')
+        </if>
+        ),
+        T02 as (
+        SELECT
+        A.pnsucsm galileo_name, A.cdfc factory_code, DATE_FORMAT(A.ymd8ent, '%Y-%m-%d') input_date,
+        DATE_FORMAT(A.ymd8st, '%Y-%m-%d') effective_date,
+        DATE_FORMAT(A.ymd8ed, '%Y-%m-%d') expiry_date, A.ucstdi standard_price, A.cdcur currency_code, A.umstduc unit
+        FROM pidvn.tnmu007_standard_unit_cost A
+        where 1 = 1
+        order by A.ymd8ent desc
+        )
+        select
+        T01.*, T02.factory_code, T02.standard_price, T02.currency_code, T02.unit, ROUND((T02.standard_price*T01.qty), 4)
+        total_price
+        from T01
+        left join T02 on (T01.galileo_name = T02.galileo_name and (T01.date between T02.effective_date and
+        T02.expiry_date and T01.factory_code = T02.factory_code))
+        where 1 = 1
+        order by T01.date desc
+
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <resultMap id="getSparePartRequestMasters-result"
+               type="pidvn.modules.spare_part.models.SparePartRequestVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="created_by" property="createdBy" javaType="String"/>
+        <result column="created_by_name" property="createdByName" javaType="String"/>
+        <result column="subsection_name" property="subsectionName" javaType="String"/>
+        <result column="factory_code" property="factoryCode" javaType="String"/>
+        <result column="factory_name" property="factoryName" javaType="String"/>
+        <result column="issued_qty" property="issuedQty" javaType="String"/>
+        <result column="amount_req" property="amountReq" javaType="Integer"/>
+        <result column="amount_act" property="amountAct" javaType="Integer"/>
+    </resultMap>
+    <select id="getSparePartRequestMasters" resultMap="getSparePartRequestMasters-result">
+        with
+        T01 as (
+            SELECT
+                M.*, U.name created_by_name,S.name subsection_name,
+                case
+                    when M.factory_code = 'RE' then 'RELAY FACTORY'
+                    when M.factory_code = 'EM' then 'EMC FACTORY'
+                    when M.factory_code = 'PN' then 'PIH ENC FACTORY'
+                    when M.factory_code = 'PR' then 'PIH RE FACTOR'
+                    when M.factory_code = 'SP' then 'SPEAKER'
+                    when M.factory_code = 'TN' then 'HFC FACTORY'
+                    when M.factory_code = 'HO' then 'HEAD OFFICE'
+                    when M.factory_code = 'PC' then 'PCB FACTORY'
+                end factory_name
+            FROM spare_part_request_master M
+            left join users U on M.created_by = U.username
+            left join subsection S on M.subsection_id = S.id
+            where 1 = 1
+            and M.is_active = 1
+            <if test="date != null">
+                and M.date = DATE_FORMAT(#{date}, '%Y-%m-%d')
+            </if>
+            <if test="requestMasterId != null">
+                and M.id = #{requestMasterId}
+            </if>
+            order by M.id desc
+        ),
+        -- Tính toán để biết được số mã đã xuất kho
+        T02 as (
+            select A.request_no, A.amount amount_req , B.amount amount_act from (
+                select B.request_no, count(A.part_number) amount from  spare_part_request_detail A
+                inner join spare_part_request_master B on A.request_id = B.id
+                where B.date = DATE_FORMAT(#{date}, '%Y-%m-%d')
+                group by B.request_no
+            ) A
+            left join (
+                select R.request_no, count(R.part_number) amount from spare_part_records R
+                where 1=1
+                and R.goods_type = 'M4'
+                and R.type = 'OUTPUT'
+                and R.date BETWEEN DATE_FORMAT(#{date}, '%Y-%m-%d') AND DATE_ADD(DATE_FORMAT(#{date}, '%Y-%m-%d'), INTERVAL 8 DAY)
+                group by R.request_no
+                order by id desc
+            ) B
+            on A.request_no = B.request_no
+        )
+        select T01.*, T02.amount_req, T02.amount_act from T01 left join T02 on T01.request_no = T02.request_no
+    </select>
+
+    <resultMap id="getSparePartRequestDetail-result"
+               type="pidvn.modules.spare_part.models.SparePartRequestVo">
+        <result column="request_no" property="requestNo" javaType="String"/>
+        <result column="section_name" property="sectionName" javaType="String"/>
+        <result column="part_number" property="partNumber" javaType="String"/>
+    </resultMap>
+    <select id="getSparePartRequestDetail" resultMap="getSparePartRequestDetail-result">
+        select M.request_no, M.`date`, S.name section_name, D.part_number, D.qty from spare_part_request_master M
+        inner join spare_part_request_detail D on M.id = D.request_id
+        inner join section S on M.section_id = S.id
+        where M.id = #{requestId}
+    </select>
+
+    <resultMap id="getSparePartRequestDetailByRequestId-result"
+               type="pidvn.modules.spare_part.models.SparePartRequestVo">
+        <result column="part_number" property="partNumber" javaType="String"/>
+        <result column="part_name" property="partName" javaType="String"/>
+        <result column="request_qty" property="requestQty" javaType="Float"/>
+        <result column="issued_qty" property="issuedQty" javaType="Float"/>
+    </resultMap>
+    <select id="getSparePartRequestDetailByRequestId" resultMap="getSparePartRequestDetailByRequestId-result">
+        with
+        T01 as (
+            SELECT D.*, M.request_no, S.name part_name, S.unit FROM spare_part_request_detail D
+            inner join spare_part_request_master M on (D.request_id = M.id and D.request_id = #{requestId})
+            left join spare_parts S on  (S.part_number = D.part_number and S.type = 'M4')
+        )
+        select T01.id, T01.part_number, T01.part_name, T01.qty request_qty, T01.unit, R.qty issued_qty from T01
+        left join spare_part_records R on (T01.request_no = R.request_no and T01.part_number = R.part_number)
+    </select>
+</mapper>

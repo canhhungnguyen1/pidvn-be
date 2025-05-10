@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.qa.icp_data.IcpDataMapper">
+
+    <resultMap id="getIcpData-result"
+               type="pidvn.modules.qa.icp_data.models.IcpDataDto">
+        <result column="parent_model" property="parentModel" javaType="String"/>
+        <result column="child_model" property="childModel" javaType="String"/>
+        <result column="short_name" property="shortName" javaType="String"/>
+        <result column="test_no" property="testNo" javaType="String"/>
+        <result column="expired_date" property="expiredDate" javaType="Date"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+    </resultMap>
+    <select id="getIcpData" resultMap="getIcpData-result">
+        SELECT A.*, B.short_name FROM pidvn.qa_icp_data A
+        left join model B on A.child_model = B.name
+        where 1=1
+        and A.parent_model = #{parentModel}
+    </select>
+
+
+
+
+</mapper>

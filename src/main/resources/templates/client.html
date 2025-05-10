@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      .wapper {
+        background: #f3f3f3;
+        padding: 25px;
+        display: flex;
+        justify-content: center;
+      }
+      .content {
+        width: 100%;
+        background: white;
+        border-top: 3px solid #2366af;
+      }
+      .header {
+        padding: 10px 10px; 
+        background: #fdfdfe;
+        border-bottom: 1px solid #F5F5F6;
+      }
+      .main {
+        padding: 10px 10px; 
+        background: white;
+      }
+
+      .main h1 {
+        font-size:22px;
+        line-height:28px;
+        letter-spacing:-.20px;
+        margin:10px 0 16px 0;
+        
+        color: #2366af;
+        text-align:left
+      }
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 3px 5px;
+      }
+
+      td.value {
+        text-align: right;
+      }
+      td.value > span {
+        font-weight: bold;
+      }
+      tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body style="font:small / 1.5 Arial, Helvetica, sans-serif;">
+    <div class="wapper">
+      <div class="content">
+<!--        <div class="header">-->
+<!--            <img src="https://seeklogo.com/images/P/Panasonic-logo-3FF2D6EBDF-seeklogo.com.png" alt="" width="135px">-->
+<!--        </div>-->
+        <div class="main">
+            <h1>THÔNG TIN XÁC NHẬN TRỪ VÉ ĂN THÁNG 8/2024</h1>
+            <b>Dear anh/chị: </b><b th:text="${user.fullName}"></b> - <b th:text="${user.username}"></b>
+            <p>Phòng Nhân sự gửi dữ liệu trừ vé ăn chi tiết như sau:</p>
+            <p>Anh/Chị vui lòng kiểm tra kỹ số lượng vé và tổng tiền bị trừ và phản hồi trước ngày 20 hàng tháng.</p>
+            <table style="font-size: 15px; width: 100%; text-align: center">
+
+                <tr>
+                    <th colspan="3" style="background: #ededed">VÉ CHÍNH (VÉ)</th>
+                    <th colspan="3" style="background: #ededed">VÉ PHỤ (VÉ)</th>
+                    <th colspan="3" style="background: #fff486">TỔNG TRỪ (VÉ)</th>
+                </tr>
+                <tr>
+                    <td style="width: 10%; background: #ededed">
+                        <span>Số vé tiêu chuẩn</span><br/>
+                        <span>(1)</span>
+                    </td>
+                    <td style="width: 10%; background: #ededed">
+                        <span>Số vé đã quẹt</span><br>
+                        <span>(2)</span>
+                    </td>
+                    <td style="width: 10%; background: #ededed">
+                        <span>Chênh lệch</span><br>
+                        <span>(3)</span>
+                    </td>
+                    <td style="width: 10%; background: #ededed">
+                        <span>Số vé tiêu chuẩn</span><br/>
+                        <span>(4)</span>
+                    </td>
+                    <td style="width: 10%; background: #ededed">
+                        <span>Số vé đã quẹt</span><br>
+                        <span>(5)</span>
+                    </td>
+                    <td style="width: 10%; background: #ededed">
+                        <span>Chênh lệch</span><br>
+                        <span>(6)</span>
+                    </td>
+                    <td style="background: #fff486">
+                        <span>Vé chính</span><br>
+                        <span>(7)=(3)</span>
+                    </td>
+                    <td style="background: #fff486">
+                        <span>Vé phụ</span><br>
+                        <span>(8)=(6)</span>
+                    </td>
+                    <td style="background: #fff486">
+                        <span>Tổng trừ</span><br>
+                        <span>(7)+(8)</span>
+                    </td>
+                </tr>
+                <tr style="font-weight: bold;">
+                    <td style="background: #ededed"><b th:text="${user.veChinhTimesheet}"></b></td>
+                    <td style="background: #ededed"><b th:text="${user.veChinhThucTe}"></b></td>
+                    <td style="background: #ededed"><b th:text="${user.veChinhChenhLech}"></b></td>
+                    <td style="background: #ededed"><b th:text="${user.vePhuTimesheet}"></b></td>
+                    <td style="background: #ededed"><b th:text="${user.vePhuThucTe}"></b></td>
+                    <td style="background: #ededed"><b th:text="${user.vePhuChenhLech}"></b></td>
+                    <td style="background: #fff486"><b th:text="${#numbers.formatDecimal(user.tienVeChinh, 1, 'COMMA', 0, 'POINT')}"></b></td>
+                    <td style="background: #fff486"><b th:text="${#numbers.formatDecimal(user.tienVePhu, 1, 'COMMA', 0, 'POINT')}"></b></td>
+                    <td style="background: #fff486"><b th:text="${#numbers.formatDecimal(user.tienChenhLech, 1, 'COMMA', 0, 'POINT')}"></b></td>
+
+
+                </tr>
+            </table>
+            <p>* Ghi chú: </p>
+            <ul style="color: red; font-weight: bold; font-style: italic">
+                <li>
+                    Sau 3 ngày kể từ ngày nhận được E-mail này, nếu có ý kiến khác vui lòng liên hệ Ms Huyền- phòng HCNS theo máy lẻ: 3222 hoặc E-mail.
+                </li>
+                <li>
+                    TH không phản hồi trong vòng 3 ngày, phòng HCNS sẽ tự động trừ vào lương của tháng theo số vé chênh lệch nêu trên.
+                </li>
+                <li>
+                    Vé chính: 23,000vnd, Vé Phụ: 15,000vnd
+                </li>
+            </ul>
+            <br />
+            <hr />
+
+            <div class="sign" style="width: 100%;">
+                <p>Trân trọng !</p>
+                <p>Phòng Hành Chính Nhân Sự</p>
+                <p>Đây là email gửi từ hệ thống, vui lòng không phản hồi lại !</p>
+
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </body>
+</html>

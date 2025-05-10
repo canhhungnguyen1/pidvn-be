@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.ie.machine_document.IeMaDoMapper">
+
+    <resultMap id="getIeMachineFiles-result"
+               type="pidvn.modules.ie.machine_document.models.FileInfoDto">
+
+        <result column="created_by_name" property="createdByName" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="machine_code" property="machineCode" javaType="String"/>
+        <result column="machine_name" property="machineName" javaType="String"/>
+
+    </resultMap>
+    <select id="getIeMachineFiles" resultMap="getIeMachineFiles-result">
+        SELECT A.*, B.name created_by_name, C.code machine_code, C.name machine_name
+        FROM ie_file_history A
+        left join users B on A.created_by = B.username
+        left join ie_machines C on A.machine_code = C.code
+        order by A.id desc
+    </select>
+
+
+
+
+</mapper>

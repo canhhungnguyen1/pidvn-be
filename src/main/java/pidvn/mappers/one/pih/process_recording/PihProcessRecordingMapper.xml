@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.pih.process_recording.PihProcessRecordingMapper">
+
+    <resultMap id="getMaterial-result"
+               type="pidvn.modules.pih.process_recording.models.MaterialVo">
+        <result column="fr_box" property="frBox" javaType="Integer"/>
+        <result column="to_box" property="toBox" javaType="Integer"/>
+        <result column="winding_bobbin" property="windingBobbin" javaType="Integer"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+    </resultMap>
+    <select id="getMaterial" resultMap="getMaterial-result">
+        select
+            M.*,
+            (select U.name from users U where U.username = M.user1) employee
+        from material_controls M
+        where 1 = 1
+        <if test="cpn">
+            and M.cpn = #{cpn}
+        </if>
+        <if test="plotno">
+            and M.plotno = #{plotno}
+        </if>
+        <if test="clotno">
+            and M.clotno = #{clotno}
+        </if>
+        <if test="recordType != null">
+            and M.record_type = #{recordType}
+        </if>
+
+        <if test="line != null">
+            and M.line = #{line}
+        </if>
+
+        <if test="fromDate != null and toDate != null">
+            and M.date between DATE_FORMAT(#{fromDate}, '%Y-%m-%d') and DATE_FORMAT(#{toDate}, '%Y-%m-%d')
+        </if>
+
+        order by M.id desc
+
+    </select>
+
+
+    <resultMap id="getLots-result"
+               type="pidvn.modules.pih.process_recording.models.LotVo">
+        <result column="lot_group" property="lotGroup" javaType="String"/>
+        <result column="s_no" property="createdAt" javaType="Date"/>
+    </resultMap>
+    <select id="getLots" resultMap="getLots-result">
+
+        select
+            l.id, l.lot_no, l.model, l.line, l.shift, l.`date`, l.qty, l.lot_group, l.s_no
+        from lots l
+        where 1 = 1
+        <if test="lotNo != null">
+            and l.lot_no = #{lotNo}
+        </if>
+        <if test="lotGroup != null">
+            and l.lot_group = #{lotGroup}
+        </if>
+        <if test="sNoList != null and sNoList.size != 0">
+            and l.s_no between #{sNoList[0]} and #{sNoList[1]}
+        </if>
+
+    </select>
+
+
+    <select id="calculateQtyChangeCoil" resultType="Float">
+        with
+        T01 as (
+            select
+                l.id, l.lot_no, l.model, l.line, l.shift, l.`date`, l.qty, l.lot_group, l.s_no
+            from lots l
+            where l.lot_group = #{label}
+            and l.s_no between #{fromBox} and #{toBox}
+        ),
+        T02 as (
+            select T01.*, M.pnpa, M.pncomp, M.qtpern, M.qtperd, #{bobbinAmount} as bobbin_amount from T01
+            left join ps_masters M on (T01.model = M.pnpa and M.pncomp = #{coilCode})
+        )
+        select sum(A.qty) qty from (
+            select T02.model, T02.line, (T02.qty/T02.bobbin_amount*T02.qtpern/T02.qtperd) qty from T02
+        ) A
+        group by A.line, A.model
+    </select>
+
+
+
+    <resultMap id="getDefectRecords-result"
+               type="pidvn.modules.pih.process_recording.models.DefectRecordVo">
+        <result column="lot_no" property="lotNo" javaType="String"/>
+        <result column="lot_group" property="lotGroup" javaType="String"/>
+        <result column="seq_no" property="seqNo" javaType="Integer"/>
+    </resultMap>
+    <select id="getDefectRecords" resultMap="getDefectRecords-result">
+        select
+            A.id, A.model, A.line, A.`date`, A.shift, A.lot_no, A.qty, A.created_at,
+            cast(right(A.lot_no,3) as signed) seq_no, SUBSTRING(A.lot_no, 1, LENGTH(A.lot_no)-4) lot_group from defect_records A
+        where 1 = 1
+        and A.defect_code in (select D.code from defects D where defect_group = 'OK')
+        <if test="lotNo != null">
+            and A.lot_no like '%${lotNo}%'
+        </if>
+        <if test="line != null">
+            and A.line = #{line}
+        </if>
+
+        order by A.id desc
+
+        <if test="limit != null">
+            limit 1
+        </if>
+
+
+    </select>
+
+
+
+    <resultMap id="calculateQtyChangeLabel-result"
+               type="pidvn.modules.pih.process_recording.models.LotVo">
+        <result column="lot_no" property="lotGroup" javaType="String"/>
+    </resultMap>
+    <select id="calculateQtyChangeLabel" resultMap="calculateQtyChangeLabel-result">
+        with
+        T01 as (
+            select
+                A.lot_no, A.qty,cast(right(A.lot_no,3) as signed) seq_no
+            from defect_records A
+            where 1 = 1
+            and A.defect_code in (select D.code from defects D where defect_group = 'OK')
+            and A.lot_no like '%${plotno}%'
+        ),
+        T02 as (
+            select
+            M.id, M.ppn, M.cpn, M.plotno, M.clotno, M.fr_box, M.to_box,
+            (M.to_box - M.fr_box + 1) as temp_amount, P.qtpern, P.qtperd
+            from material_controls M
+            left join ps_masters P on (M.ppn = P.pnpa and M.cpn = P.pncomp)
+            where 1 = 1
+            and M.record_type = 'PIC'
+            and M.plotno = #{plotno}
+            and M.id in
+            <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        ),
+        T03 as (
+            select T02.id, T02.clotno, #{bobbinAmount} as bobbin_amount, sum(T01.qty) qty , T02.qtpern, T02.qtperd  from T02
+            left join T01 on (T01.seq_no between T02.fr_box and T02.to_box)
+            group by T02.id
+        )
+        select T03.id, T03.clotno as lot_no, (T03.qty/T03.bobbin_amount*T03.qtpern/T03.qtperd) qty from T03
+    </select>
+</mapper>

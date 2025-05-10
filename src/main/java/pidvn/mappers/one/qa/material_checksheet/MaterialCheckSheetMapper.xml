@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pidvn.mappers.one.qa.material_checksheet.MaterialCheckSheetMapper">
+
+    <resultMap id="getQaCards-result"
+               type="pidvn.modules.qa.material_checksheet.models.QaCardDto">
+        <result column="qa_card" property="qaCard" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+    </resultMap>
+
+    <select id="getQaCards" resultMap="getQaCards-result">
+
+        SELECT
+            A.id, A.model, A.lot_no qa_card, A.date, B.name shift, A.customer_code,
+            B.code shift_code, C.description line, C.name line_code
+        FROM lots A
+         left join shifts B on A.shift = B.code
+         left join line C on A.line = C.name
+        where 1=1
+          and A.label_type = 'QA'
+        <if test="dateRange != null and dateRange.size != 0">
+            and DATE_FORMAT(A.date, '%Y-%m-%d') between DATE_FORMAT(#{dateRange[0]}, '%Y-%m-%d') and DATE_FORMAT(#{dateRange[1]}, '%Y-%m-%d')
+        </if>
+        order by A.id desc
+
+    </select>
+
+
+    <resultMap id="getPsMasters-result"
+               type="pidvn.modules.qa.material_checksheet.models.PsMaterDto">
+        <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="updated_at" property="updatedAt" javaType="Date"/>
+        <result column="process_name" property="processName" javaType="String"/>
+    </resultMap>
+
+    <select id="getPsMasters" resultMap="getPsMasters-result">
+        with
+        T01 as (
+            select
+                A.ppn, A.cpn, A.line, A.date, A.shift, A.plotno,
+                A.clotno, A.qty, A.created_at, A.updated_at, B.name process_name
+            from material_controls A
+            left join process B on A.process_id = B.id
+            where 1=1
+              and A.plotno = #{qaCard}
+            group by cpn
+            order by A.id asc
+        )
+        select   A.pncomp, T01.* from ps_masters A
+        left join T01 on A.pncomp = T01.cpn
+        where 1=1
+        and A.pnpa = #{model}
+        order by T01.updated_at desc
+
+
+    </select>
+
+
+
+
+</mapper>

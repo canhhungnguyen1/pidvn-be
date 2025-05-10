@@ -1,0 +1,41 @@
+# Bỏ thư mục build
+/target/
+
+# Bỏ file WAR/JAR nếu có build trong root
+*.war
+*.jar
+
+# File log
+*.log
+
+# File hệ điều hành
+.DS_Store
+Thumbs.db
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# Maven
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Hệ thống
+*.swp
+*~
