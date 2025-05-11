@@ -95,6 +95,7 @@
             END AS record_type_name
         from T02
         left join is_device A on T02.device_name = A.name
+        order by T02.id desc
         ]]>
     </select>
 
