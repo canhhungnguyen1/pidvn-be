@@ -29,6 +29,9 @@ public class IsDevice {
     @Column(name = "os")
     private String os;
 
+    @Column(name = "brand")
+    private String brand;
+
     @Column(name = "fa_code")
     private String faCode;
 
@@ -84,6 +87,14 @@ public class IsDevice {
 
     public void setOs(String os) {
         this.os = os;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 
     public String getFaCode() {

@@ -22,6 +22,7 @@ public class DeviceDto {
     private Date date;
     private String sectionName;
     private String remark;
+    private String brand;
 
     public Integer getId() {
         return id;
@@ -173,5 +174,13 @@ public class DeviceDto {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 }
