@@ -3,7 +3,7 @@ package pidvn.modules.is.device_management.models;
 import java.util.Date;
 
 public class DeviceDto {
-    private String id;
+    private Integer id;
     private String name;
     private String model;
     private String type;
@@ -21,12 +21,13 @@ public class DeviceDto {
     private String picName;
     private Date date;
     private String sectionName;
+    private String remark;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -164,5 +165,13 @@ public class DeviceDto {
 
     public void setSectionName(String sectionName) {
         this.sectionName = sectionName;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

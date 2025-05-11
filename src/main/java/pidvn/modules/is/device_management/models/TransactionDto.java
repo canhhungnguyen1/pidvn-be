@@ -13,6 +13,7 @@ public class TransactionDto {
     private String picName;
     private Date date;
     private String sectionName;
+    private String remark;
 
     public Integer getId() {
         return id;
@@ -92,5 +93,13 @@ public class TransactionDto {
 
     public void setSectionName(String sectionName) {
         this.sectionName = sectionName;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
