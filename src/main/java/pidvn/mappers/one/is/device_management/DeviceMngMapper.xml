@@ -2,6 +2,52 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pidvn.mappers.one.is.device_management.DeviceMngMapper">
 
+    <resultMap id="getDevices-result"
+               type="pidvn.modules.is.device_management.models.DeviceDto">
+        <result column="fa_code" property="faCode" javaType="String"/>
+        <result column="purchase_date" property="purchaseDate" javaType="Date"/>
+        <result column="transaction_id" property="transactionId" javaType="Integer"/>
+        <result column="record_type" property="recordType" javaType="String"/>
+        <result column="record_type_name" property="recordTypeName" javaType="String"/>
+        <result column="it_user_code" property="itUserCode" javaType="String"/>
+        <result column="itUser_name" property="itUserName" javaType="String"/>
+        <result column="pic_code" property="picCode" javaType="String"/>
+        <result column="pic_name" property="picName" javaType="String"/>
+        <result column="section_name" property="sectionName" javaType="String"/>
+    </resultMap>
+    <select id="getDevices" resultMap="getDevices-result">
+        <![CDATA[
+            with
+            T01 as (
+                select C.username, C.name, C.subsection_name, C.section_name from (
+                  select A.*, B.subsection_name, B.section_name from users A
+                  left join (
+                      select A.id, A.name subsection_name, B.name section_name from subsection A
+                      left join section B on A.section_id = B.id
+                  ) B
+                    on A.subsection_id = B.id
+                ) C
+            ),
+            T02 as (
+                select
+                    T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name,
+                    t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name
+                from is_device_transaction T
+                join T01 it_user ON T.it_user_code = it_user.username
+                join T01 pic_user ON t.pic_code = pic_user.username
+            )
+            select
+                A.*, T02.record_type, T02.it_user_code, T02.it_user_name,
+                T02.pic_code, T02.pic_name, T02.date, T02.section_name,
+                CASE
+                    WHEN record_type = 'IN' THEN 'Nhận lại'
+                    WHEN record_type = 'OUT' THEN 'Bàn giao'
+                END AS record_type_name
+            from is_device A
+            left join T02 on A.transaction_id = T02.id
+        ]]>
+    </select>
+
     <resultMap id="getUsers-result"
                type="pidvn.modules.is.device_management.models.UserDto">
         <result column="code_name" property="codeName" javaType="String"/>
@@ -11,11 +57,45 @@
     </select>
 
     <resultMap id="getDeviceTransactions-result"
-               type="pidvn.modules.is.device_management.models.DeviceTransactionDto">
+               type="pidvn.modules.is.device_management.models.TransactionDto">
         <result column="device_name" property="deviceName" javaType="String"/>
+        <result column="record_type" property="recordType" javaType="String"/>
+        <result column="record_type_name" property="recordTypeName" javaType="String"/>
+        <result column="it_user_code" property="itUserCode" javaType="String"/>
+        <result column="it_user_name" property="itUserName" javaType="String"/>
+        <result column="pic_code" property="picCode" javaType="String"/>
+        <result column="pic_name" property="picName" javaType="String"/>
+        <result column="section_name" property="sectionName" javaType="String"/>
     </resultMap>
     <select id="getDeviceTransactions" resultMap="getDeviceTransactions-result">
-        SELECT * FROM pidvn.is_device_transaction
+        <![CDATA[
+        with
+        T01 as (
+            select C.username, C.name, C.subsection_name, C.section_name from (
+                select A.*, B.subsection_name, B.section_name from users A
+                left join (
+                    select A.id, A.name subsection_name, B.name section_name from subsection A
+                    left join section B on A.section_id = B.id
+                ) B on A.subsection_id = B.id
+            ) C
+        ),
+        T02 as (
+            select
+                T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name,
+                t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name
+            from is_device_transaction T
+            join T01 it_user ON T.it_user_code = it_user.username
+            join T01 pic_user ON t.pic_code = pic_user.username
+        )
+        select
+            T02.*, A.model, A.type,
+            CASE
+                WHEN record_type = 'IN' THEN 'Nhận lại'
+                WHEN record_type = 'OUT' THEN 'Bàn giao'
+            END AS record_type_name
+        from T02
+        left join is_device A on T02.device_name = A.name
+        ]]>
     </select>
 
 </mapper>

@@ -2,12 +2,15 @@ package pidvn.modules.is.device_management.services;
 
 import pidvn.entities.one.IsDevice;
 import pidvn.modules.is.device_management.models.DeviceDto;
+import pidvn.modules.is.device_management.models.TransactionDto;
 import pidvn.modules.is.device_management.models.UserDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DeviceMngSvc {
-    List<IsDevice> getDevices();
+    List<DeviceDto> getDevices();
     List<UserDto> getUsers();
-    List<DeviceDto> getDeviceTransactions();
+    List<TransactionDto> getDeviceTransactions();
+    Map<String, Object> saveTransaction(TransactionDto transactionDto);
 }

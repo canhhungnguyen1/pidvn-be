@@ -35,6 +35,9 @@ public class IsDevice {
     @Column(name = "purchase_date")
     private String purchaseDate;
 
+    @Column(name = "transaction_id")
+    private Integer transactionId;
+
     @CreatedDate
     @Column(name = "created_at")
     private Date createdAt;
@@ -97,6 +100,14 @@ public class IsDevice {
 
     public void setPurchaseDate(String purchaseDate) {
         this.purchaseDate = purchaseDate;
+    }
+
+    public Integer getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Integer transactionId) {
+        this.transactionId = transactionId;
     }
 
     public Date getCreatedAt() {
