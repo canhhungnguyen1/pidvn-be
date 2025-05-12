@@ -12,6 +12,7 @@ import java.util.Map;
 
 public interface DeviceMngSvc {
     List<DeviceDto> getDevices();
+    DeviceDto getDevice(String deviceName);
     List<UserDto> getUsers();
     List<TransactionDto> getDeviceTransactions();
     Map<String, Object> saveTransaction(TransactionDto transactionDto) throws MessagingException, UnsupportedEncodingException;

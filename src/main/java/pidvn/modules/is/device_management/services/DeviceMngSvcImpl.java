@@ -53,6 +53,12 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
     }
 
     @Override
+    public DeviceDto getDevice(String deviceName) {
+        this.isDeviceRepo.findByName(deviceName);
+        return this.modelMapper.map(this.isDeviceRepo.findByName(deviceName), DeviceDto.class);
+    }
+
+    @Override
     public List<UserDto> getUsers() {
         return this.deviceMngMapper.getUsers();
     }

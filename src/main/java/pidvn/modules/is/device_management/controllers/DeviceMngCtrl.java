@@ -35,6 +35,13 @@ public class DeviceMngCtrl {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @GetMapping("Devices/{deviceName}")
+    public ResponseEntity<ApiResponse<?>> getDevice(@PathVariable String deviceName) {
+        ApiResponse<DeviceDto> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.getDevice(deviceName));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
     /**
      * API: IS/DeviceManagement/Users
      *
