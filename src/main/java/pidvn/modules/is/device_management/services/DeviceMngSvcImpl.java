@@ -53,8 +53,13 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
     }
 
     @Override
-    public DeviceDto getDevice(String deviceName) {
-        this.isDeviceRepo.findByName(deviceName);
+    public DeviceDto getDevice(String deviceName) throws Exception {
+        IsDevice result = this.isDeviceRepo.findByName(deviceName);
+
+        if (result == null) {
+            throw new Exception("Hệ thống không nhận diện được mã thiết bị");
+        }
+
         return this.modelMapper.map(this.isDeviceRepo.findByName(deviceName), DeviceDto.class);
     }
 

@@ -36,7 +36,7 @@ public class DeviceMngCtrl {
     }
 
     @GetMapping("Devices/{deviceName}")
-    public ResponseEntity<ApiResponse<?>> getDevice(@PathVariable String deviceName) {
+    public ResponseEntity<ApiResponse<?>> getDevice(@PathVariable String deviceName) throws Exception {
         ApiResponse<DeviceDto> apiResponse = new ApiResponse<>();
         apiResponse.setResult(this.deviceMngSvc.getDevice(deviceName));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
