@@ -29,7 +29,11 @@ public class IsDeviceTransaction {
     @Column(name = "pic_code")
     private String picCode;
 
+    @Column(name = "remark")
     private String remark;
+
+    @Column(name = "date")
+    private Date date;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -85,6 +89,14 @@ public class IsDeviceTransaction {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public Date getCreatedAt() {

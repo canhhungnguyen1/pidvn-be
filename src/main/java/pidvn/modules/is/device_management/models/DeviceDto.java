@@ -21,6 +21,7 @@ public class DeviceDto {
     private String picName;
     private Date date;
     private String sectionName;
+    private String subsectionName;
     private String remark;
     private String brand;
 
@@ -166,6 +167,14 @@ public class DeviceDto {
 
     public void setSectionName(String sectionName) {
         this.sectionName = sectionName;
+    }
+
+    public String getSubsectionName() {
+        return subsectionName;
+    }
+
+    public void setSubsectionName(String subsectionName) {
+        this.subsectionName = subsectionName;
     }
 
     public String getRemark() {
