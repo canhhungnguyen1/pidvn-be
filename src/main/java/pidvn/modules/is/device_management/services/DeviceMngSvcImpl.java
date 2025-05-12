@@ -89,9 +89,10 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
     public void sendSimpleEmail(IsDevice device, IsDeviceTransaction transaction) throws MessagingException, UnsupportedEncodingException {
 
-        Users user = this.userRepo.findByUsername(transaction.getPicCode());
+        Users picUser = this.userRepo.findByUsername(transaction.getPicCode());
+        Users itUser = this.userRepo.findByUsername(transaction.getItUserCode());
 
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+        if (picUser.getEmail() == null || picUser.getEmail().isEmpty()) {
             return;
         }
 
@@ -100,8 +101,8 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
         // Gán biến động vào template
         Context context = new Context();
-        context.setVariable("picCode", user.getUsername());
-        context.setVariable("picName", user.getName());
+        context.setVariable("picCode", picUser.getUsername());
+        context.setVariable("picName", picUser.getName());
         context.setVariable("deviceName", device.getName());
         context.setVariable("model", device.getModel());
         context.setVariable("type", device.getType());
@@ -113,7 +114,8 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
         helper.setFrom("it.pidvn", "IT PIDVN");
         helper.setSubject("IT PIDVN - Thông báo bàn giao thiết bị");
-        helper.setTo(user.getEmail());
+        helper.setTo(picUser.getEmail());
+        helper.setCc(itUser.getEmail());
         helper.setText(htmlContent, true); // true => HTML
 
         this.mailSender.send(message);
