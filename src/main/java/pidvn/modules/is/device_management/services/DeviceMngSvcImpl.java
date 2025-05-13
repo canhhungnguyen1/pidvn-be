@@ -10,10 +10,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import pidvn.entities.one.*;
 import pidvn.mappers.one.is.device_management.DeviceMngMapper;
-import pidvn.modules.is.device_management.models.DeviceDto;
-import pidvn.modules.is.device_management.models.InventoryRequestDto;
-import pidvn.modules.is.device_management.models.TransactionDto;
-import pidvn.modules.is.device_management.models.UserDto;
+import pidvn.modules.is.device_management.models.*;
 import pidvn.repositories.one.*;
 
 import javax.mail.MessagingException;
@@ -39,6 +36,9 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
     @Autowired
     private IsDeviceInventoryRequestRepo isDeviceInventoryRequestRepo;
+
+    @Autowired
+    private IsDeviceInventoryDataRepo isDeviceInventoryDataRepo;
 
     @Autowired
     private DeviceMngMapper deviceMngMapper;
@@ -122,6 +122,13 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
     public List<InventoryRequestDto> getInventoryRequests() {
         List<IsDeviceInventoryRequest> data = this.isDeviceInventoryRequestRepo.findAll();
         return data.stream().map(item -> modelMapper.map(item, InventoryRequestDto.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public InventoryDataDto saveInventoryData(InventoryDataDto ivtDataDto) {
+        IsDeviceInventoryData ivtData = this.modelMapper.map(ivtDataDto, IsDeviceInventoryData.class);
+        IsDeviceInventoryData response = this.isDeviceInventoryDataRepo.save(ivtData);
+        return this.modelMapper.map(response, InventoryDataDto.class);
     }
 
     public void sendSimpleEmail(IsDevice device, IsDeviceTransaction transaction) throws MessagingException, UnsupportedEncodingException {
