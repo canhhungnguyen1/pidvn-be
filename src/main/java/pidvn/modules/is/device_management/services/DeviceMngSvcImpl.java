@@ -131,6 +131,11 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
         return this.modelMapper.map(response, InventoryDataDto.class);
     }
 
+    @Override
+    public List<InventoryDataDto> getInventoryData(Integer requestId) {
+        return this.deviceMngMapper.getInventoryData(requestId);
+    }
+
     public void sendSimpleEmail(IsDevice device, IsDeviceTransaction transaction) throws MessagingException, UnsupportedEncodingException {
 
         Users picUser = this.userRepo.findByUsername(transaction.getPicCode());

@@ -19,4 +19,5 @@ public interface DeviceMngSvc {
     InventoryRequestDto createInventoryRequest(InventoryRequestDto inventoryRequestDto);
     List<InventoryRequestDto> getInventoryRequests();
     InventoryDataDto saveInventoryData(InventoryDataDto ivtDataDto);
+    List<InventoryDataDto> getInventoryData(Integer requestId);
 }

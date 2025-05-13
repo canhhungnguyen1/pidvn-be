@@ -119,6 +119,18 @@ public class DeviceMngCtrl {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+
+    /**
+     * API: IS/DeviceManagement/Inventory/Data
+     * @return
+     */
+    @GetMapping("Inventory/Data")
+    public ResponseEntity<ApiResponse<?>> getInventoryData(@RequestParam Integer requestId) {
+        ApiResponse<List<InventoryDataDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.getInventoryData(requestId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
     @PostMapping("Inventory/Data")
     public ResponseEntity<ApiResponse<?>> saveInventoryData(@RequestBody InventoryDataDto ivtDatDto) {
         ApiResponse<InventoryDataDto> apiResponse = new ApiResponse<>();
