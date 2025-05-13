@@ -23,6 +23,9 @@ public class IsDeviceInventoryRequest {
     @Column(name = "created_by")
     private String createdBy;
 
+    @Column(name = "remark")
+    private String remark;
+
     @CreatedDate
     @Column(name = "created_at")
     private Date createdAt;
@@ -53,6 +56,14 @@ public class IsDeviceInventoryRequest {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public Date getCreatedAt() {

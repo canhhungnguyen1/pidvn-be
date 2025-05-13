@@ -5,6 +5,7 @@ public class InventoryRequestDto {
     private String requestNo;
     private String createdBy;
     private String createdByName;
+    private String remark;
     private String createdAt;
     private String updatedAt;
 
@@ -38,6 +39,14 @@ public class InventoryRequestDto {
 
     public void setCreatedByName(String createdByName) {
         this.createdByName = createdByName;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public String getCreatedAt() {
