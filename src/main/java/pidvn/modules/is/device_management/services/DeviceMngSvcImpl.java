@@ -8,23 +8,22 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import pidvn.entities.one.IsDevice;
-import pidvn.entities.one.IsDeviceTransaction;
-import pidvn.entities.one.Users;
+import pidvn.entities.one.*;
 import pidvn.mappers.one.is.device_management.DeviceMngMapper;
 import pidvn.modules.is.device_management.models.DeviceDto;
+import pidvn.modules.is.device_management.models.InventoryRequestDto;
 import pidvn.modules.is.device_management.models.TransactionDto;
 import pidvn.modules.is.device_management.models.UserDto;
-import pidvn.repositories.one.IsDeviceRepo;
-import pidvn.repositories.one.IsDeviceTransactionRepo;
-import pidvn.repositories.one.UsersRepo;
+import pidvn.repositories.one.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DeviceMngSvcImpl implements DeviceMngSvc {
@@ -33,10 +32,16 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
     private IsDeviceRepo isDeviceRepo;
 
     @Autowired
-    private DeviceMngMapper deviceMngMapper;
+    private IsDeviceTransactionRepo isDeviceTransactionRepo;
 
     @Autowired
-    private IsDeviceTransactionRepo isDeviceTransactionRepo;
+    private IsDeviceLocationRepo isDeviceLocationRepo;
+
+    @Autowired
+    private IsDeviceInventoryRequestRepo isDeviceInventoryRequestRepo;
+
+    @Autowired
+    private DeviceMngMapper deviceMngMapper;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -63,6 +68,12 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
         return this.modelMapper.map(this.isDeviceRepo.findByName(deviceName), DeviceDto.class);
     }
 
+
+    @Override
+    public List<IsDeviceLocation> getLocations() {
+        return this.isDeviceLocationRepo.findAll();
+    }
+
     @Override
     public List<UserDto> getUsers() {
         return this.deviceMngMapper.getUsers();
@@ -81,11 +92,13 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
         // Thêm data vào bảng is_device_transaction
         IsDeviceTransaction transaction = this.modelMapper.map(transactionDto, IsDeviceTransaction.class);
+        transaction.setDate(new Date());
         IsDeviceTransaction response1 = this.isDeviceTransactionRepo.save(transaction);
 
         // Cập nhật transaction_id vào bảng is_device
         IsDevice device = this.isDeviceRepo.findByName(transaction.getDeviceName());
         device.setTransactionId(response1.getId());
+        device.setLocationId(response1.getLocationId());
         IsDevice response2 = this.isDeviceRepo.save(device);
 
         Map<String, Object> result = new HashMap<>();
@@ -96,6 +109,19 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
         this.sendSimpleEmail(device, transaction);
 
         return result;
+    }
+
+    @Override
+    public InventoryRequestDto createInventoryRequest(InventoryRequestDto inventoryRequestDto) {
+        IsDeviceInventoryRequest request = this.modelMapper.map(inventoryRequestDto, IsDeviceInventoryRequest.class);
+        IsDeviceInventoryRequest response = this.isDeviceInventoryRequestRepo.save(request);
+        return this.modelMapper.map(response, InventoryRequestDto.class);
+    }
+
+    @Override
+    public List<InventoryRequestDto> getInventoryRequests() {
+        List<IsDeviceInventoryRequest> data = this.isDeviceInventoryRequestRepo.findAll();
+        return data.stream().map(item -> modelMapper.map(item, InventoryRequestDto.class)).collect(Collectors.toList());
     }
 
     public void sendSimpleEmail(IsDevice device, IsDeviceTransaction transaction) throws MessagingException, UnsupportedEncodingException {

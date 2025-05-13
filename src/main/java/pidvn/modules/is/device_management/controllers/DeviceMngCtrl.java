@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pidvn.commons.dto.ApiResponse;
 import pidvn.entities.one.IsDevice;
+import pidvn.entities.one.IsDeviceLocation;
 import pidvn.modules.is.device_management.models.DeviceDto;
+import pidvn.modules.is.device_management.models.InventoryRequestDto;
 import pidvn.modules.is.device_management.models.TransactionDto;
 import pidvn.modules.is.device_management.models.UserDto;
 import pidvn.modules.is.device_management.services.DeviceMngSvcImpl;
@@ -24,6 +26,29 @@ public class DeviceMngCtrl {
     private DeviceMngSvcImpl deviceMngSvc;
 
     /**
+     * API: IS/DeviceManagement/Users
+     *
+     * @return
+     */
+    @GetMapping("Users")
+    public ResponseEntity<ApiResponse<?>> getUsers() {
+        ApiResponse<List<UserDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.getUsers());
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    /**
+     * PI: IS/DeviceManagement/Locations
+     * @return
+     */
+    @GetMapping("Locations")
+    public ResponseEntity<ApiResponse<?>> getLocations() {
+        ApiResponse<List<IsDeviceLocation>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.getLocations());
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    /**
      * API: IS/DeviceManagement/Devices
      *
      * @return
@@ -35,22 +60,16 @@ public class DeviceMngCtrl {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    /**
+     * API: IS/DeviceManagement/Devices/{deviceName}
+     * @param deviceName
+     * @return
+     * @throws Exception
+     */
     @GetMapping("Devices/{deviceName}")
     public ResponseEntity<ApiResponse<?>> getDevice(@PathVariable String deviceName) throws Exception {
         ApiResponse<DeviceDto> apiResponse = new ApiResponse<>();
         apiResponse.setResult(this.deviceMngSvc.getDevice(deviceName));
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-    }
-
-    /**
-     * API: IS/DeviceManagement/Users
-     *
-     * @return
-     */
-    @GetMapping("Users")
-    public ResponseEntity<ApiResponse<?>> getUsers() {
-        ApiResponse<List<UserDto>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(this.deviceMngSvc.getUsers());
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
@@ -85,9 +104,22 @@ public class DeviceMngCtrl {
      */
     @GetMapping("Inventory/Requests")
     public ResponseEntity<ApiResponse<?>> getInventoryRequests() {
-        ApiResponse<?> apiResponse = new ApiResponse<>();
+        ApiResponse<List<InventoryRequestDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.getInventoryRequests());
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    /**
+     * API: IS/DeviceManagement/Inventory/Request
+     *
+     * @param ivtReqDto
+     * @return
+     */
+    @PostMapping("Inventory/Request")
+    public ResponseEntity<ApiResponse<?>> createInventoryRequest(@RequestBody InventoryRequestDto ivtReqDto) {
+        ApiResponse<InventoryRequestDto> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.createInventoryRequest(ivtReqDto));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
 
 }

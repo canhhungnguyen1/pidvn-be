@@ -15,6 +15,7 @@
         <result column="pic_name" property="picName" javaType="String"/>
         <result column="section_name" property="sectionName" javaType="String"/>
         <result column="subsection_name" property="subsectionName" javaType="String"/>
+        <result column="location_name" property="locationName" javaType="String"/>
     </resultMap>
     <select id="getDevices" resultMap="getDevices-result">
         <![CDATA[
@@ -30,14 +31,15 @@
             ),
             T02 as (
                 select
-                    T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name, t.pic_code,
+                    T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name, t.pic_code, A.name location_name,
                     pic_user.name AS pic_name, t.date, pic_user.section_name, pic_user.subsection_name, t.remark
                 from is_device_transaction T
                 join T01 it_user ON T.it_user_code = it_user.username
                 join T01 pic_user ON t.pic_code = pic_user.username
+                left join is_device_location A on T.location_id = A.id
             )
             select
-                A.*, T02.record_type, T02.it_user_code, T02.it_user_name, T02.pic_code,
+                A.*, T02.record_type, T02.it_user_code, T02.it_user_name, T02.pic_code, T02.location_name,
                 T02.pic_name, T02.date, T02.section_name, T02.subsection_name, T02.remark,
                 CASE
                     WHEN record_type = 'IN' THEN 'Nhận lại'

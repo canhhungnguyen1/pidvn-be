@@ -14,6 +14,7 @@ public class TransactionDto {
     private Date date;
     private String sectionName;
     private String remark;
+    private Integer locationId;
 
     public Integer getId() {
         return id;
@@ -101,5 +102,13 @@ public class TransactionDto {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(Integer locationId) {
+        this.locationId = locationId;
     }
 }

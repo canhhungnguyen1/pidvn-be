@@ -32,6 +32,9 @@ public class IsDevice {
     @Column(name = "brand")
     private String brand;
 
+    @Column(name = "location_id")
+    private Integer locationId;
+
     @Column(name = "fa_code")
     private String faCode;
 
@@ -95,6 +98,14 @@ public class IsDevice {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public Integer getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(Integer locationId) {
+        this.locationId = locationId;
     }
 
     public String getFaCode() {

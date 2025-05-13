@@ -24,6 +24,7 @@ public class DeviceDto {
     private String subsectionName;
     private String remark;
     private String brand;
+    private String locationName;
 
     public Integer getId() {
         return id;
@@ -191,5 +192,13 @@ public class DeviceDto {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
