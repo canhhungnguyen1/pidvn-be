@@ -15,6 +15,7 @@ public class TransactionDto {
     private String sectionName;
     private String remark;
     private Integer locationId;
+    private String locationName;
 
     public Integer getId() {
         return id;
@@ -110,5 +111,13 @@ public class TransactionDto {
 
     public void setLocationId(Integer locationId) {
         this.locationId = locationId;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }

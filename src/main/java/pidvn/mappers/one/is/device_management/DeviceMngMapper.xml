@@ -68,6 +68,7 @@
         <result column="pic_code" property="picCode" javaType="String"/>
         <result column="pic_name" property="picName" javaType="String"/>
         <result column="section_name" property="sectionName" javaType="String"/>
+        <result column="location_name" property="locationName" javaType="String"/>
     </resultMap>
     <select id="getDeviceTransactions" resultMap="getDeviceTransactions-result">
         <![CDATA[
@@ -84,10 +85,11 @@
         T02 as (
             select
                 T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name,
-                t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name, T.remark
+                t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name, T.remark, L.name location_name
             from is_device_transaction T
             join T01 it_user ON T.it_user_code = it_user.username
             join T01 pic_user ON t.pic_code = pic_user.username
+            left join is_device_location L on T.location_id = L.id
         )
         select
             T02.*, A.model, A.type,
