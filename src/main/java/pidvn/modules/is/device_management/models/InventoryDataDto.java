@@ -6,11 +6,13 @@ public class InventoryDataDto {
     private Integer id;
     private String requestId;
     private String deviceName;
+    private String deviceType;
     private String createdBy;
     private String createdByName;
     private String locationName;
-    private String locationId;
+    private Integer locationId;
     private Date createdAt;
+    private String remark;
 
     public Integer getId() {
         return id;
@@ -34,6 +36,14 @@ public class InventoryDataDto {
 
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
+    }
+
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
     }
 
     public String getCreatedBy() {
@@ -60,11 +70,11 @@ public class InventoryDataDto {
         this.locationName = locationName;
     }
 
-    public String getLocationId() {
+    public Integer getLocationId() {
         return locationId;
     }
 
-    public void setLocationId(String locationId) {
+    public void setLocationId(Integer locationId) {
         this.locationId = locationId;
     }
 
@@ -74,5 +84,13 @@ public class InventoryDataDto {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

@@ -16,10 +16,7 @@ import pidvn.repositories.one.*;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,7 +59,7 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
         IsDevice result = this.isDeviceRepo.findByName(deviceName);
 
         if (result == null) {
-            throw new Exception("Hệ thống không nhận diện được mã thiết bị");
+            throw new Exception("Mã QR thiết bị không đúng !");
         }
 
         return this.modelMapper.map(this.isDeviceRepo.findByName(deviceName), DeviceDto.class);
@@ -90,24 +87,29 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
     @Override
     public Map<String, Object> saveTransaction(TransactionDto transactionDto) throws MessagingException, UnsupportedEncodingException {
 
-        // Thêm data vào bảng is_device_transaction
-        IsDeviceTransaction transaction = this.modelMapper.map(transactionDto, IsDeviceTransaction.class);
+        // 1. Tìm thiết bị liên quan
+        IsDevice device = isDeviceRepo.findByName(transactionDto.getDeviceName());
+        device = Optional.ofNullable(device)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị: " + transactionDto.getDeviceName()));
+
+
+        // 2. Map DTO -> entity và lưu giao dịch
+        IsDeviceTransaction transaction = modelMapper.map(transactionDto, IsDeviceTransaction.class);
         transaction.setDate(new Date());
-        IsDeviceTransaction response1 = this.isDeviceTransactionRepo.save(transaction);
+        IsDeviceTransaction savedTransaction = isDeviceTransactionRepo.save(transaction);
 
-        // Cập nhật transaction_id vào bảng is_device
-        IsDevice device = this.isDeviceRepo.findByName(transaction.getDeviceName());
-        device.setTransactionId(response1.getId());
-        device.setLocationId(response1.getLocationId());
-        IsDevice response2 = this.isDeviceRepo.save(device);
+        // 3. Cập nhật thông tin thiết bị
+        device.setTransactionId(savedTransaction.getId());
+        device.setLocationId(savedTransaction.getLocationId());
+        IsDevice updatedDevice = isDeviceRepo.save(device);
 
+        // 4. Gửi email thông báo
+        sendSimpleEmail(device, transaction);
+
+        // 5. Trả kết quả
         Map<String, Object> result = new HashMap<>();
-        result.put("transaction", response1);
-        result.put("device", response2);
-
-        // Gửi email
-        this.sendSimpleEmail(device, transaction);
-
+        result.put("transaction", savedTransaction);
+        result.put("device", updatedDevice);
         return result;
     }
 
@@ -126,9 +128,23 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
     @Override
     public InventoryDataDto saveInventoryData(InventoryDataDto ivtDataDto) {
-        IsDeviceInventoryData ivtData = this.modelMapper.map(ivtDataDto, IsDeviceInventoryData.class);
-        IsDeviceInventoryData response = this.isDeviceInventoryDataRepo.save(ivtData);
-        return this.modelMapper.map(response, InventoryDataDto.class);
+
+        // Map DTO -> Entity
+        IsDeviceInventoryData ivtData = modelMapper.map(ivtDataDto, IsDeviceInventoryData.class);
+        ivtData.setDate(new Date());
+
+        // Lưu dữ liệu kiểm kê
+        IsDeviceInventoryData savedData = isDeviceInventoryDataRepo.save(ivtData);
+
+        // Cập nhật location nếu cần
+        IsDevice device = isDeviceRepo.findByName(ivtData.getDeviceName());
+        if (!Objects.equals(device.getLocationId(), ivtDataDto.getLocationId())) {
+            device.setLocationId(ivtDataDto.getLocationId());
+            isDeviceRepo.save(device);
+        }
+
+        // Trả kết quả dạng DTO
+        return modelMapper.map(savedData, InventoryDataDto.class);
     }
 
     @Override

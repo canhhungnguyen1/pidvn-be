@@ -32,6 +32,9 @@ public class IsDeviceInventoryData {
     @Column(name = "date")
     private Date date;
 
+    @Column(name = "remark")
+    private String remark;;
+
     @CreatedDate
     @Column(name = "created_at")
     private Date createdAt;
@@ -86,6 +89,14 @@ public class IsDeviceInventoryData {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public Date getCreatedAt() {

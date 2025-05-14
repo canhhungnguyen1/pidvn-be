@@ -105,15 +105,18 @@
     <resultMap id="getInventoryData-result"
                type="pidvn.modules.is.device_management.models.InventoryDataDto">
         <result column="device_name" property="deviceName" javaType="String"/>
+        <result column="device_type" property="deviceType" javaType="String"/>
         <result column="location_name" property="locationName" javaType="String"/>
         <result column="created_by_name" property="createdByName" javaType="String"/>
         <result column="created_by" property="createdBy" javaType="String"/>
         <result column="created_at" property="createdAt" javaType="Date"/>
     </resultMap>
     <select id="getInventoryData" resultMap="getInventoryData-result">
-        SELECT A.*, B.name location_name, C.name created_by_name FROM is_device_inventory_data A
+        SELECT A.*, B.name location_name, C.name created_by_name, D.type device_type
+        FROM is_device_inventory_data A
         left join is_device_location B on A.location_id = B.id
         left join users C on A.created_by = C.username
+        left join is_device D on A.device_name = D.name
         where 1=1
         and A.request_id = #{requestId}
     </select>
