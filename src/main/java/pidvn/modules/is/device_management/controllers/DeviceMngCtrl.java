@@ -7,10 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import pidvn.commons.dto.ApiResponse;
 import pidvn.entities.one.IsDevice;
 import pidvn.entities.one.IsDeviceLocation;
-import pidvn.modules.is.device_management.models.DeviceDto;
-import pidvn.modules.is.device_management.models.InventoryRequestDto;
-import pidvn.modules.is.device_management.models.TransactionDto;
-import pidvn.modules.is.device_management.models.UserDto;
+import pidvn.modules.is.device_management.models.*;
 import pidvn.modules.is.device_management.services.DeviceMngSvcImpl;
 
 import javax.mail.MessagingException;
@@ -119,6 +116,25 @@ public class DeviceMngCtrl {
     public ResponseEntity<ApiResponse<?>> createInventoryRequest(@RequestBody InventoryRequestDto ivtReqDto) {
         ApiResponse<InventoryRequestDto> apiResponse = new ApiResponse<>();
         apiResponse.setResult(this.deviceMngSvc.createInventoryRequest(ivtReqDto));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+
+    /**
+     * API: IS/DeviceManagement/Inventory/Data
+     * @return
+     */
+    @GetMapping("Inventory/Data")
+    public ResponseEntity<ApiResponse<?>> getInventoryData(@RequestParam Integer requestId) {
+        ApiResponse<List<InventoryDataDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.getInventoryData(requestId));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("Inventory/Data")
+    public ResponseEntity<ApiResponse<?>> saveInventoryData(@RequestBody InventoryDataDto ivtDatDto) {
+        ApiResponse<InventoryDataDto> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.saveInventoryData(ivtDatDto));
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 

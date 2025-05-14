@@ -68,6 +68,7 @@
         <result column="pic_code" property="picCode" javaType="String"/>
         <result column="pic_name" property="picName" javaType="String"/>
         <result column="section_name" property="sectionName" javaType="String"/>
+        <result column="location_name" property="locationName" javaType="String"/>
     </resultMap>
     <select id="getDeviceTransactions" resultMap="getDeviceTransactions-result">
         <![CDATA[
@@ -84,10 +85,11 @@
         T02 as (
             select
                 T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name,
-                t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name, T.remark
+                t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name, T.remark, L.name location_name
             from is_device_transaction T
             join T01 it_user ON T.it_user_code = it_user.username
             join T01 pic_user ON t.pic_code = pic_user.username
+            left join is_device_location L on T.location_id = L.id
         )
         select
             T02.*, A.model, A.type,
@@ -99,6 +101,26 @@
         left join is_device A on T02.device_name = A.name
         order by T02.id desc
         ]]>
+    </select>
+
+
+    <resultMap id="getInventoryData-result"
+               type="pidvn.modules.is.device_management.models.InventoryDataDto">
+        <result column="device_name" property="deviceName" javaType="String"/>
+        <result column="device_type" property="deviceType" javaType="String"/>
+        <result column="location_name" property="locationName" javaType="String"/>
+        <result column="created_by_name" property="createdByName" javaType="String"/>
+        <result column="created_by" property="createdBy" javaType="String"/>
+        <result column="created_at" property="createdAt" javaType="Date"/>
+    </resultMap>
+    <select id="getInventoryData" resultMap="getInventoryData-result">
+        SELECT A.*, B.name location_name, C.name created_by_name, D.type device_type
+        FROM is_device_inventory_data A
+        left join is_device_location B on A.location_id = B.id
+        left join users C on A.created_by = C.username
+        left join is_device D on A.device_name = D.name
+        where 1=1
+        and A.request_id = #{requestId}
     </select>
 
 </mapper>
