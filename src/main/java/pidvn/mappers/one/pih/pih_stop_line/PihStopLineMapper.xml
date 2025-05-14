@@ -131,9 +131,8 @@
         where 1=1
           and A.line = (select distinct name from line where id = #{line})
           and A.shift = (select distinct code from shifts where id = #{shift})
-          and A.date = DATE_FORMAT(#{fromDate}, '%Y-%m-%d')
-
-
+          AND A.date BETWEEN DATE_SUB(DATE_FORMAT(#{fromDate}, '%Y-%m-%d'), INTERVAL 1 DAY)
+          AND DATE_FORMAT(#{fromDate}, '%Y-%m-%d')
         order by id desc
     </select>
 
