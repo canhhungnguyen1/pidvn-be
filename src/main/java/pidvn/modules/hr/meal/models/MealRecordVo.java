@@ -34,6 +34,8 @@ public class MealRecordVo {
 
     private Integer vePhuBalance;
 
+    private String couponType;
+
 
     public Integer getRowNum() {
         return rowNum;
@@ -193,5 +195,13 @@ public class MealRecordVo {
 
     public void setVePhuBalance(Integer vePhuBalance) {
         this.vePhuBalance = vePhuBalance;
+    }
+
+    public String getCouponType() {
+        return couponType;
+    }
+
+    public void setCouponType(String couponType) {
+        this.couponType = couponType;
     }
 }
