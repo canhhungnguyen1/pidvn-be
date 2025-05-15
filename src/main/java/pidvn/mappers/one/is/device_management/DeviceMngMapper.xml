@@ -16,6 +16,7 @@
         <result column="section_name" property="sectionName" javaType="String"/>
         <result column="subsection_name" property="subsectionName" javaType="String"/>
         <result column="location_name" property="locationName" javaType="String"/>
+        <result column="transaction_remark" property="transactionRemark" javaType="String"/>
     </resultMap>
     <select id="getDevices" resultMap="getDevices-result">
         <![CDATA[
@@ -40,7 +41,7 @@
             )
             select
                 A.*, T02.record_type, T02.it_user_code, T02.it_user_name, T02.pic_code, T02.location_name,
-                T02.pic_name, T02.date, T02.section_name, T02.subsection_name, T02.remark,
+                T02.pic_name, T02.date, T02.section_name, T02.subsection_name, T02.remark transaction_remark,
                 CASE
                     WHEN record_type = 'IN' THEN 'Nhận lại'
                     WHEN record_type = 'OUT' THEN 'Bàn giao'

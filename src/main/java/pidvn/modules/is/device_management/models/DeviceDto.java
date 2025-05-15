@@ -23,6 +23,7 @@ public class DeviceDto {
     private String sectionName;
     private String subsectionName;
     private String remark;
+    private String transactionRemark;
     private String brand;
     private String locationName;
     private Integer locationId;
@@ -185,6 +186,14 @@ public class DeviceDto {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getTransactionRemark() {
+        return transactionRemark;
+    }
+
+    public void setTransactionRemark(String transactionRemark) {
+        this.transactionRemark = transactionRemark;
     }
 
     public String getBrand() {
