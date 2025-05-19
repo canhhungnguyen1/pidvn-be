@@ -66,6 +66,8 @@ public class RelayDateCodeSvc implements IRelayDateCodeSvc {
 
     @Override
     public List<ModelVo> getMaterialScanned(String qaCard) {
-        return this.dateCodeMapper.getMaterialScanned(qaCard);
+        String[] qaCardSplit = qaCard.split("\\*");
+        String data = qaCardSplit[0] + "*" + qaCardSplit[1] + "*" + qaCardSplit[2];
+        return this.dateCodeMapper.getMaterialScanned(data);
     }
 }
