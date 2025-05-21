@@ -173,7 +173,7 @@
                 select R.request_no, count(R.part_number) amount from spare_part_records R
                 where 1=1
                 and R.goods_type = 'M4'
-                and R.type = 'OUTPUT'
+                -- and R.type = 'OUTPUT'
                 and R.date BETWEEN DATE_FORMAT(#{date}, '%Y-%m-%d') AND DATE_ADD(DATE_FORMAT(#{date}, '%Y-%m-%d'), INTERVAL 8 DAY)
                 group by R.request_no
                 order by id desc
@@ -190,7 +190,7 @@
         <result column="part_number" property="partNumber" javaType="String"/>
     </resultMap>
     <select id="getSparePartRequestDetail" resultMap="getSparePartRequestDetail-result">
-        select M.request_no, M.`date`, S.name section_name, D.part_number, D.qty from spare_part_request_master M
+        select M.request_no, M.`date`, S.name section_name, D.part_number, D.qty, D.type from spare_part_request_master M
         inner join spare_part_request_detail D on M.id = D.request_id
         inner join section S on M.section_id = S.id
         where M.id = #{requestId}
@@ -202,6 +202,8 @@
         <result column="part_name" property="partName" javaType="String"/>
         <result column="request_qty" property="requestQty" javaType="Float"/>
         <result column="issued_qty" property="issuedQty" javaType="Float"/>
+        <result column="record_type" property="recordType" javaType="String"/>
+        <result column="created_by_name" property="createdByName" javaType="String"/>
     </resultMap>
     <select id="getSparePartRequestDetailByRequestId" resultMap="getSparePartRequestDetailByRequestId-result">
         with
@@ -210,7 +212,10 @@
             inner join spare_part_request_master M on (D.request_id = M.id and D.request_id = #{requestId})
             left join spare_parts S on  (S.part_number = D.part_number and S.type = 'M4')
         )
-        select T01.id, T01.part_number, T01.part_name, T01.qty request_qty, T01.unit, R.qty issued_qty from T01
+        select
+            T01.id, T01.part_number, T01.part_name, T01.qty request_qty,
+            T01.unit, R.qty issued_qty, T01.record_type, (select U.name from users U where U.username = R.wh_user_code) created_by_name
+        from T01
         left join spare_part_records R on (T01.request_no = R.request_no and T01.part_number = R.part_number)
     </select>
 </mapper>

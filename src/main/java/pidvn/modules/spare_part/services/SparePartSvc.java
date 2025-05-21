@@ -238,7 +238,12 @@ public class SparePartSvc implements ISparePartSvc {
      * @return
      */
     @Override
-    public List<SparePartRequestDetail> createRequestSparePart(List<SparePartRequestDetail> spareParts, String factoryCode, Integer subsectionId) {
+    public List<SparePartRequestDetail> createRequestSparePart(
+            List<SparePartRequestDetail> spareParts,
+            String factoryCode,
+            Integer subsectionId,
+            String requestType
+    ) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
@@ -253,17 +258,20 @@ public class SparePartSvc implements ISparePartSvc {
         String date = formatter.format(new Date());
 
 
-        Integer sequence = this.sparePartRequestMasterRepo.getTotalRequestInDay() + 1;
+        Integer sequence = this.sparePartRequestMasterRepo.getTotalRequestInDay(requestType) + 1;
+        String paddedSequence = String.format("%02d", sequence); // 2 chữ số, thêm số 0 ở đầu nếu cần
+
         SparePartRequestMaster obj = new SparePartRequestMaster();
-        obj.setRequestNo("RQ-" + date + "-" + sequence);
+        obj.setRequestNo((Objects.equals(requestType, "ORDER") ? "REQ-" : "RET-") + date + "-" + paddedSequence);
         obj.setCreatedBy(createdBy);
         obj.setFactoryCode(factoryCode);
         obj.setSubsectionId(subsectionId);
         obj.setDate(new Date());
         obj.setActive(true);
+        obj.setType(requestType);
         SparePartRequestMaster master = this.sparePartRequestMasterRepo.save(obj);
 
-
+        // B2: thêm dữ liệu vào bảng spare_part_request_detail
         for (SparePartRequestDetail item : spareParts) {
             item.setId(null);
             item.setRequestId(master.getId());
@@ -316,7 +324,10 @@ public class SparePartSvc implements ISparePartSvc {
 
         String tempName = "temp-" + new Random().nextInt(1000) + ".xlsx";
         String rootFolder = "\\\\10.92.152.55\\pvg-data$\\PIDVN-Data\\Public Drive\\IS\\(C) Save File FDCS\\FDCS-Server-2\\M4M8\\";
-        String sourcePath = rootFolder + "MaterialRequest.xlsx";
+
+        String fileName = request.getType().equals("ORDER") ? "MaterialRequest - ORDER.xlsx" : "MaterialRequest - RETURN.xlsx";
+
+        String sourcePath = rootFolder + fileName;
         String targetPath = rootFolder + tempName;
 
 
@@ -468,9 +479,6 @@ public class SparePartSvc implements ISparePartSvc {
                 Integer rowNum = i + 1;
                 RowExcelErrorVo item = new RowExcelErrorVo(rowNum, e.toString());
                 rowNG.add(item);
-
-
-                System.out.println("AAAAA");
             }
         }
 
