@@ -25,6 +25,7 @@ public class SparePartRequestVo {
     private Integer amountAct;
     private String type;
     private String recordType;
+    private String remark;
 
     public Integer getId() {
         return id;
@@ -200,5 +201,13 @@ public class SparePartRequestVo {
 
     public void setRecordType(String recordType) {
         this.recordType = recordType;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

@@ -163,8 +163,8 @@
         ),
         -- Tính toán để biết được số mã đã xuất kho
         T02 as (
-            select A.request_no, A.amount amount_req , B.amount amount_act from (
-                select B.request_no, count(A.part_number) amount from  spare_part_request_detail A
+            select A.request_no, A.amount amount_req , B.amount amount_act, A.remark from (
+                select B.request_no, count(A.part_number) amount, B.remark from  spare_part_request_detail A
                 inner join spare_part_request_master B on A.request_id = B.id
                 where B.date = DATE_FORMAT(#{date}, '%Y-%m-%d')
                 group by B.request_no
@@ -180,7 +180,7 @@
             ) B
             on A.request_no = B.request_no
         )
-        select T01.*, T02.amount_req, T02.amount_act from T01 left join T02 on T01.request_no = T02.request_no
+        select T01.*, T02.amount_req, T02.amount_act, T02.remark from T01 left join T02 on T01.request_no = T02.request_no
     </select>
 
     <resultMap id="getSparePartRequestDetail-result"
