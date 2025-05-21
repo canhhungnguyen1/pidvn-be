@@ -262,7 +262,7 @@ public class SparePartSvc implements ISparePartSvc {
         String paddedSequence = String.format("%02d", sequence); // 2 chữ số, thêm số 0 ở đầu nếu cần
 
         SparePartRequestMaster obj = new SparePartRequestMaster();
-        obj.setRequestNo(Objects.equals(requestType, "ORDER") ? "REQ-" : "RET-" + date + "-" + paddedSequence);
+        obj.setRequestNo((Objects.equals(requestType, "ORDER") ? "REQ-" : "RET-") + date + "-" + paddedSequence);
         obj.setCreatedBy(createdBy);
         obj.setFactoryCode(factoryCode);
         obj.setSubsectionId(subsectionId);
