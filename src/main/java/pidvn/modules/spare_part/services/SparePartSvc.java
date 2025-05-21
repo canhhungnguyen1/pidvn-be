@@ -325,7 +325,7 @@ public class SparePartSvc implements ISparePartSvc {
         String tempName = "temp-" + new Random().nextInt(1000) + ".xlsx";
         String rootFolder = "\\\\10.92.152.55\\pvg-data$\\PIDVN-Data\\Public Drive\\IS\\(C) Save File FDCS\\FDCS-Server-2\\M4M8\\";
 
-        String fileName = request.getType().equals("ORDER") ? "MaterialRequest.xlsx" : "MaterialRequest - RETURN.xlsx";
+        String fileName = request.getType().equals("ORDER") ? "MaterialRequest - ORDER.xlsx" : "MaterialRequest - RETURN.xlsx";
 
         String sourcePath = rootFolder + fileName;
         String targetPath = rootFolder + tempName;
