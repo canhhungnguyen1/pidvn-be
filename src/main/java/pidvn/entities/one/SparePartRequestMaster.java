@@ -43,6 +43,9 @@ public class SparePartRequestMaster {
     @Column(name = "factory_code")
     private String factoryCode;
 
+    @Column(name = "type")
+    private String type;
+
     public Integer getId() {
         return id;
     }
@@ -113,5 +116,13 @@ public class SparePartRequestMaster {
 
     public void setFactoryCode(String factoryCode) {
         this.factoryCode = factoryCode;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

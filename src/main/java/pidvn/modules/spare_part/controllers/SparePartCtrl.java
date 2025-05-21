@@ -136,9 +136,10 @@ public class SparePartCtrl {
     public ResponseEntity<?> createRequestSparePart(
             @RequestBody List<SparePartRequestDetail> spareParts,
             @RequestParam String factoryCode,
-            @RequestParam Integer subsectionId
+            @RequestParam Integer subsectionId,
+            @RequestParam String requestType
     ) {
-        return new ResponseEntity<>(this.sparePartSvc.createRequestSparePart(spareParts, factoryCode, subsectionId), HttpStatus.OK);
+        return new ResponseEntity<>(this.sparePartSvc.createRequestSparePart(spareParts, factoryCode, subsectionId, requestType), HttpStatus.OK);
     }
 
     /**

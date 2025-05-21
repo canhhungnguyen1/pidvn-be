@@ -23,6 +23,8 @@ public class SparePartRequestVo {
     private String unit;
     private Integer amountReq;
     private Integer amountAct;
+    private String type;
+    private String recordType;
 
     public Integer getId() {
         return id;
@@ -182,5 +184,21 @@ public class SparePartRequestVo {
 
     public void setAmountAct(Integer amountAct) {
         this.amountAct = amountAct;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getRecordType() {
+        return recordType;
+    }
+
+    public void setRecordType(String recordType) {
+        this.recordType = recordType;
     }
 }

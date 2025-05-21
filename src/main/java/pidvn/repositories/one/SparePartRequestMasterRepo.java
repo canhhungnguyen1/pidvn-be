@@ -10,4 +10,10 @@ public interface SparePartRequestMasterRepo extends JpaRepository<SparePartReque
 
     @Query(value = "select count(R.id) from spare_part_request_master R where DATE_FORMAT(R.created_at, '%Y-%m-%d') = DATE_FORMAT(CURDATE(), '%Y-%m-%d')", nativeQuery = true)
     Integer getTotalRequestInDay();
+
+    @Query(value = "select count(R.id) from spare_part_request_master R " +
+            "where 1=1 " +
+            "and DATE_FORMAT(R.created_at, '%Y-%m-%d') = DATE_FORMAT(CURDATE(), '%Y-%m-%d') " +
+            "and R.type = :requestType", nativeQuery = true)
+    Integer getTotalRequestInDay(String requestType);
 }

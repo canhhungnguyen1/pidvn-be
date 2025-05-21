@@ -26,6 +26,9 @@ public class SparePartRequestDetail {
     @Column(name = "qty")
     private Float qty;
 
+    @Column(name = "record_type")
+    private String recordType;
+
     @CreatedDate
     @Column(name = "created_at")
     private Date createdAt;
@@ -64,6 +67,14 @@ public class SparePartRequestDetail {
 
     public void setQty(Float qty) {
         this.qty = qty;
+    }
+
+    public String getRecordType() {
+        return recordType;
+    }
+
+    public void setRecordType(String recordType) {
+        this.recordType = recordType;
     }
 
     public Date getCreatedAt() {
