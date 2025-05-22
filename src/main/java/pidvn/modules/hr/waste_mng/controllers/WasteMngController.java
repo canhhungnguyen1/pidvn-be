@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pidvn.commons.dto.ApiResponse;
 import pidvn.entities.one.WasteMasterData;
 import pidvn.modules.hr.waste_mng.models.WasteDataVo;
 import pidvn.modules.hr.waste_mng.models.WasteSearchVo;
@@ -16,6 +17,7 @@ import pidvn.modules.hr.waste_mng.services.WasteMngService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("HR/WasteMng")
@@ -37,6 +39,13 @@ public class WasteMngController {
     @GetMapping("WasteType")
     public ResponseEntity<?> getWasteType(@RequestParam Integer wasteGroup) {
         return new ResponseEntity<>(this.wasteMngSvc.getWasteType(wasteGroup), HttpStatus.OK);
+    }
+
+    @PostMapping("WasteType/v2")
+    public ResponseEntity<ApiResponse<?>> getWasteTypeVer2(@RequestBody WasteSearchVo searchVo) {
+        ApiResponse<List<WasteDataVo>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.wasteMngSvc.getWasteTypeVer2(searchVo));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @GetMapping("HandleCompany")

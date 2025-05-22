@@ -158,4 +158,20 @@
     </select>
 
 
+
+    <resultMap id="getWasteTypeVer2-result"
+               type="pidvn.modules.hr.waste_mng.models.WasteDataVo">
+        <result column="qr_code" property="qrCode" javaType="String"/>
+        <result column="waste_group" property="wasteGroup" javaType="Integer"/>
+        <result column="waste_group_name" property="wasteGroupName" javaType="String"/>
+        <result column="waste_type_name" property="wasteTypeName" javaType="String"/>
+    </resultMap>
+    <select id="getWasteTypeVer2" resultMap="getWasteTypeVer2-result">
+        select
+            A.id, A.qr_code, A.name waste_type_name, A.waste_group, B.name waste_group_name
+        from waste_type A
+        left join waste_group B on A.waste_group = B.id
+        where 1 = 1
+    </select>
+
 </mapper>

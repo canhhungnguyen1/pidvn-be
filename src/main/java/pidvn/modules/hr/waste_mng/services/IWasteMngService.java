@@ -22,6 +22,8 @@ public interface IWasteMngService {
 
     List<WasteGroup> getWasteGroup();
     List<WasteType> getWasteType(Integer wasteGroup);
+    List<WasteDataVo> getWasteTypeVer2(WasteSearchVo searchVo);
+
     List<WasteHandleCompany> getHandleCompany();
     WasteImage uploadImage(MultipartFile file) throws IOException;
     Integer removeImage(Integer id) throws Exception;
@@ -33,4 +35,7 @@ public interface IWasteMngService {
     void removeWasteMasterData(Integer id);
     void removeWasteDetailData(Integer id);
     ByteArrayInputStream exportExcel(WasteSearchVo searchVo) throws Exception;
+
+
+
 }

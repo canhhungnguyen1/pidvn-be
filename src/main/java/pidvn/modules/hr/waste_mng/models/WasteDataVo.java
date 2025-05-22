@@ -32,8 +32,8 @@ public class WasteDataVo {
     private String sealNo;
     private String packagingNo;
     private Integer rowNum;
-
     private String remark;
+    private String qrCode;
 
     public Integer getId() {
         return id;
@@ -265,5 +265,13 @@ public class WasteDataVo {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 }

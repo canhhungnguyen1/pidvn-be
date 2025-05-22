@@ -135,6 +135,11 @@ public class WasteMngService implements IWasteMngService {
     }
 
     @Override
+    public List<WasteDataVo> getWasteTypeVer2(WasteSearchVo searchVo) {
+        return this.wasteMngMapper.getWasteTypeVer2(searchVo);
+    }
+
+    @Override
     public List<WasteHandleCompany> getHandleCompany() {
         return this.handleCompanyRepo.findAll();
     }

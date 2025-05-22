@@ -14,6 +14,9 @@ public class WasteType {
     @Column(name = "id")
     private Integer id;
 
+    @Column(name = "qr_code")
+    private String qrCode;
+
     @Column(name = "name")
     private String name;
 
@@ -44,6 +47,14 @@ public class WasteType {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 
     public String getName() {

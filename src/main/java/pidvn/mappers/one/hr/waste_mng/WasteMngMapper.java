@@ -12,4 +12,6 @@ public interface WasteMngMapper {
     List<WasteDataVo> getWasteDetailData(WasteSearchVo searchVo);
     List<WasteDataVo> getWasteDetailDataSummary(WasteSearchVo searchVo);
     List<WasteDataVo> getWasteDetailDataSummaryAll(WasteSearchVo searchVo);
+    List<WasteDataVo> getWasteTypeVer2(WasteSearchVo searchVo);
+
 }
