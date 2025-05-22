@@ -137,8 +137,17 @@ public class SparePartCtrl {
             @RequestBody List<SparePartRequestDetail> spareParts,
             @RequestParam String factoryCode,
             @RequestParam Integer subsectionId,
-            @RequestParam String requestType
+            @RequestParam() String requestType
     ) {
+        if (requestType == null
+                || requestType.trim().isEmpty()
+                || requestType.equalsIgnoreCase("undefined")
+                || requestType.equalsIgnoreCase("null")
+        ) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Tham số 'requestType' là bắt buộc và không được để trống hoặc 'undefined'.");
+        }
         return new ResponseEntity<>(this.sparePartSvc.createRequestSparePart(spareParts, factoryCode, subsectionId, requestType), HttpStatus.OK);
     }
 
