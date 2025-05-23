@@ -171,7 +171,7 @@
             A.id, A.qr_code, A.name waste_type_name, A.waste_group, B.name waste_group_name
         from waste_type A
         left join waste_group B on A.waste_group = B.id
-        where 1 = 1
+        where 1 = 1 and A.status = 1 and A.qr_code is not null
     </select>
 
 </mapper>
