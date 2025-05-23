@@ -97,6 +97,7 @@ public class PihStopLineSvc implements IPihStopLineSvc {
         stopTime.setStopTime(stopTimes.getStopTime());
         stopTime.setLine(stopTimes.getLine());
         stopTime.setShift(stopTimes.getShift());
+        stopTime.setNum_box(stopTimes.getNum_box());
         stopTime.setRemark(stopTimes.getRemark());
         return this.stopTimesRepo.save(stopTime);
     }
