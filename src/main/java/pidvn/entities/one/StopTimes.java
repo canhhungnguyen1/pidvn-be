@@ -41,6 +41,9 @@ public class StopTimes {
     @Column(name = "shift")
     private Integer shift;
 
+    @Column(name = "num_box")
+    private String num_box;
+
     @CreatedDate
     @Column(name = "created_at")
     private Date createdAt;
@@ -74,6 +77,14 @@ public class StopTimes {
 
     public void setLine(String line) {
         this.line = line;
+    }
+
+    public String getNum_box() {
+        return num_box;
+    }
+
+    public void setNum_box(String num_box) {
+        this.num_box = num_box;
     }
 
     public Date getStartTime() {
