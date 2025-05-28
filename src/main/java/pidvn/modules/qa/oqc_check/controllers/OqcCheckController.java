@@ -32,11 +32,11 @@ public class OqcCheckController {
 
     /**
      * Tìm kiếm Request theo phương thức post, truyền params bằng @RequestBody
+     * API: QA/OqcCheck/Requests
      * @return
      */
     @PostMapping("Requests")
     public ResponseEntity<?> getOqcRequests(@RequestBody SearchVo searchVo) {
-
         return new ResponseEntity<>(this.oqcCheckSvc.getOqcRequests(searchVo), HttpStatus.OK);
     }
 
