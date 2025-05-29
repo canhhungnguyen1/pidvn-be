@@ -177,7 +177,7 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
         context.setVariable("purchaseDate", device.getPurchaseDate());
         String htmlContent = this.templateEngine.process("device-email-template", context);
 
-        helper.setFrom("it.pidvn", "IT PIDVN");
+        helper.setFrom("it.pidvn@vn.panasonic.com", "IT PIDVN");
         helper.setSubject("IT PIDVN - Thông báo bàn giao thiết bị");
         helper.setTo(picUser.getEmail());
         helper.setCc(itUser.getEmail());

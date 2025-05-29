@@ -70,7 +70,7 @@
         <!--            <img src="https://seeklogo.com/images/P/Panasonic-logo-3FF2D6EBDF-seeklogo.com.png" alt="" width="135px">-->
         <!--        </div>-->
         <div class="main">
-            <h1>THÔNG TIN OQC REQUEST CẦN PHÊ DUYỆT </h1>
+<!--            <h1>THÔNG TIN OQC REQUEST CẦN PHÊ DUYỆT </h1>-->
             <b>Dear Anh/Chị: </b>
             <p>Có Request OQC từ Packing cần phê duyệt </p>
             <p>Anh/Chị vui lòng kiểm tra thông tin bên dưới như sau: </p>
@@ -107,8 +107,8 @@
                 </tbody>
             </table>
 
-            <div class="sign" style="width: 100%;">
-                <p>Truy cập link bên dưới để vào hệ thống phê duyệt </p>
+            <div class="sign" style="width: 100%; margin-top: 5px">
+                <a th:href="@{'http://localhost:4200/admin/qa/qa-oqc-check/oqc-abnormal-request/' + ${reqNo}}">Click vào link này để đi đến trang phê duyệt OQC Request</a>
             </div>
         </div>
     </div>

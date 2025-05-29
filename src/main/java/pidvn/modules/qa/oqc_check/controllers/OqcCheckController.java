@@ -102,4 +102,9 @@ public class OqcCheckController {
     }
 
 
+    @PostMapping("HandleAbnormalRequest")
+    public ResponseEntity<?> handleAbnormalRequest(@RequestBody OqcRequestVo oqcRequestVo) {
+        return new ResponseEntity<>(this.oqcCheckSvc.handleAbnormalRequest(oqcRequestVo), HttpStatus.OK);
+    }
+
 }

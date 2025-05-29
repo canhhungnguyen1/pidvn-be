@@ -165,4 +165,21 @@ public class OqcCheckSvc implements IOqcCheckSvc {
         result.put("dateCodeData", dateCodeData);
         return result;
     }
+
+    @Override
+    public OqcRequest handleAbnormalRequest(OqcRequestVo oqcRequestVo) {
+
+        Optional<OqcRequest> optional = this.oqcRequestRepo.findById(oqcRequestVo.getId());
+
+        if (!optional.isPresent()) {
+            throw new RuntimeException("Không tìm thấy Request: " + oqcRequestVo.getReqNo());
+        }
+
+        OqcRequest obj = optional.get();
+        obj.setAcceptedBy(oqcRequestVo.getAcceptedBy());
+        obj.setAcceptedResult(oqcRequestVo.getAcceptedResult());
+        obj.setSpecialRemark(oqcRequestVo.getSpecialRemark());
+
+        return this.oqcRequestRepo.save(obj);
+    }
 }

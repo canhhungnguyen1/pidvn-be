@@ -158,6 +158,7 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
 
             // Gán biến động vào template
             Context context = new Context();
+            context.setVariable("reqId", obj.getId());
             context.setVariable("reqNo", obj.getReqNo());
             context.setVariable("model", obj.getModel());
             context.setVariable("qaCard", obj.getQaCard());
@@ -169,8 +170,9 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
 
             String htmlContent = this.templateEngine.process("oqc-accept-request-template", context);
 
-            helper.setFrom("it.pidvn", "IT PIDVN");
-            helper.setSubject("[OQC-REQUEST] - Thông báo phê duyệt OQC request");
+            helper.setFrom("it.pidvn@vn.panasonic.com", "IT PIDVN");
+            String subject = "[OQC-REQUEST]" + "[" + obj.getReqNo() + "]" + " - Thông báo phê duyệt OQC request";
+            helper.setSubject(subject);
             helper.setTo("canhhung.nguyen@vn.panasonic.com");
             helper.setCc("canhhung.nguyen@vn.panasonic.com");
             helper.setText(htmlContent, true); // true => HTML
