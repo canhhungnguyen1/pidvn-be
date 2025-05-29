@@ -58,6 +58,19 @@ public class OqcRequest {
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
+    @Column(name = "is_special_request")
+    private Integer isSpecialRequest;
+
+    @Column(name = "accepted_by")
+    private String acceptedBy;
+
+    @Column(name = "special_remark")
+    private String specialRemark;
+
+    @Column(name = "accepted_result")
+    private String acceptedResult;
+
+
     public Integer getId() {
         return id;
     }
@@ -168,6 +181,38 @@ public class OqcRequest {
 
     public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public Integer getIsSpecialRequest() {
+        return isSpecialRequest;
+    }
+
+    public void setIsSpecialRequest(Integer isSpecialRequest) {
+        this.isSpecialRequest = isSpecialRequest;
+    }
+
+    public String getAcceptedBy() {
+        return acceptedBy;
+    }
+
+    public void setAcceptedBy(String acceptedBy) {
+        this.acceptedBy = acceptedBy;
+    }
+
+    public String getSpecialRemark() {
+        return specialRemark;
+    }
+
+    public void setSpecialRemark(String specialRemark) {
+        this.specialRemark = specialRemark;
+    }
+
+    public String getAcceptedResult() {
+        return acceptedResult;
+    }
+
+    public void setAcceptedResult(String acceptedResult) {
+        this.acceptedResult = acceptedResult;
     }
 
     @Override

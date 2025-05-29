@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        .wapper {
+            background: #f3f3f3;
+            padding: 25px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content {
+            width: 100%;
+            background: white;
+            /*border-top: 3px solid #2366af;*/
+        }
+
+        .header {
+            padding: 10px 10px;
+            background: #fdfdfe;
+            border-bottom: 1px solid #F5F5F6;
+        }
+
+        .main {
+            padding: 10px 10px;
+            background: white;
+        }
+
+        .main h1 {
+            font-size: 22px;
+            line-height: 28px;
+            letter-spacing: -.20px;
+            margin: 10px 0 16px 0;
+
+            color: #2366af;
+            text-align: left
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 3px 5px;
+        }
+
+        table label {
+            font-weight: bold;
+        }
+
+        td.value {
+            text-align: right;
+        }
+
+        td.value > span {
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body style="font:small / 1.5 Arial, Helvetica, sans-serif;">
+<div class="wapper">
+    <div class="content">
+        <!--        <div class="header">-->
+        <!--            <img src="https://seeklogo.com/images/P/Panasonic-logo-3FF2D6EBDF-seeklogo.com.png" alt="" width="135px">-->
+        <!--        </div>-->
+        <div class="main">
+<!--            <h1>THÔNG TIN OQC REQUEST CẦN PHÊ DUYỆT </h1>-->
+            <b>Dear Anh/Chị: </b>
+            <p>Có Request OQC từ Packing cần phê duyệt </p>
+            <p>Anh/Chị vui lòng kiểm tra thông tin bên dưới như sau: </p>
+            <table>
+                <tbody>
+                <tr>
+                    <td><label>Request</label></td>
+                    <td><span th:text="${reqNo}"></span></td>
+                </tr>
+                <tr>
+                    <td><label>QA Card</label></td>
+                    <td><span th:text="${qaCard}"></span></td>
+                </tr>
+                <tr>
+                    <td><label>Model</label></td>
+                    <td><span th:text="${model}"></span></td>
+                </tr>
+                <tr>
+                    <td><label>DateCode</label></td>
+                    <td><span th:text="${dateCode}"></span></td>
+                </tr>
+                <tr>
+                    <td><label>Qty</label></td>
+                    <td><span th:text="${qty}"></span></td>
+                </tr>
+                <tr>
+                    <td><label>Creator</label></td>
+                    <td><span th:text="${createdByName}"></span></td>
+                </tr>
+                <tr>
+                    <td><label>Remark</label></td>
+                    <td><span th:text="${remark}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="sign" style="width: 100%; margin-top: 5px">
+                <a th:href="@{'http://localhost:4200/admin/qa/qa-oqc-check/oqc-abnormal-request/' + ${reqNo}}">Click vào link này để đi đến trang phê duyệt OQC Request</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

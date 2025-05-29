@@ -23,6 +23,10 @@ public class OqcRequestVo {
     private String remark;
     private String shift;
     private Date deliveryDate;
+    private Integer isSpecialRequest;
+    private String acceptedBy;
+    private String specialRemark;
+    private String acceptedResult;
 
     public Integer getId() {
         return id;
@@ -174,5 +178,37 @@ public class OqcRequestVo {
 
     public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public Integer getIsSpecialRequest() {
+        return isSpecialRequest;
+    }
+
+    public void setIsSpecialRequest(Integer isSpecialRequest) {
+        this.isSpecialRequest = isSpecialRequest;
+    }
+
+    public String getAcceptedBy() {
+        return acceptedBy;
+    }
+
+    public void setAcceptedBy(String acceptedBy) {
+        this.acceptedBy = acceptedBy;
+    }
+
+    public String getSpecialRemark() {
+        return specialRemark;
+    }
+
+    public void setSpecialRemark(String specialRemark) {
+        this.specialRemark = specialRemark;
+    }
+
+    public String getAcceptedResult() {
+        return acceptedResult;
+    }
+
+    public void setAcceptedResult(String acceptedResult) {
+        this.acceptedResult = acceptedResult;
     }
 }

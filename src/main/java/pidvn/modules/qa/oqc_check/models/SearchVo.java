@@ -1,5 +1,7 @@
 package pidvn.modules.qa.oqc_check.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +15,9 @@ public class SearchVo {
     private List<Date> requestDateRange;
 
     private String isAudit;
+
+    @JsonProperty("isAbnormal")
+    private Boolean isAbnormal;
 
     public String getUrl() {
         return url;
@@ -52,5 +57,13 @@ public class SearchVo {
 
     public void setIsAudit(String isAudit) {
         this.isAudit = isAudit;
+    }
+
+    public Boolean getAbnormal() {
+        return isAbnormal;
+    }
+
+    public void setAbnormal(Boolean abnormal) {
+        isAbnormal = abnormal;
     }
 }

@@ -16,6 +16,7 @@ public class OqcRequestVo {
     private Float sortingQty;
     private String remark;
     private Date deliveryDate;
+    private Integer isSpecialRequest;
 
     @JsonProperty
     private boolean isSorting;
@@ -106,5 +107,13 @@ public class OqcRequestVo {
 
     public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public Integer getIsSpecialRequest() {
+        return isSpecialRequest;
+    }
+
+    public void setIsSpecialRequest(Integer isSpecialRequest) {
+        this.isSpecialRequest = isSpecialRequest;
     }
 }

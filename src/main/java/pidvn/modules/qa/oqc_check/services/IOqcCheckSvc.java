@@ -22,5 +22,5 @@ public interface IOqcCheckSvc {
     AuditConfigFdcs changeConfigAudit(String configValue);
     AuditConfigFdcs getConfigAudit(String configName);
     Map systemValidate(String qaCard);
-
+    OqcRequest handleAbnormalRequest(OqcRequestVo oqcRequestVo);
 }

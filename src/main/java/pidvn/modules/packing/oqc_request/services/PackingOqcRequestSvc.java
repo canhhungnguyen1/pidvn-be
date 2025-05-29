@@ -1,14 +1,22 @@
 package pidvn.modules.packing.oqc_request.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import pidvn.entities.one.OqcRequest;
 import pidvn.mappers.one.packing.oqc_request.PackingOqcRequestMapper;
+import pidvn.mappers.one.qa.oqc_check.OqcCheckMapper;
 import pidvn.modules.packing.oqc_request.models.*;
 import pidvn.modules.relay.datecode_management.models.DateCodeVo;
 import pidvn.modules.relay.datecode_management.services.RelayDateCodeSvc;
 import pidvn.repositories.one.OqcRequestRepo;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -24,8 +32,17 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
     @Autowired
     private PackingOqcRequestMapper packingOqcRequestMapper;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private OqcCheckMapper oqcCheckMapper;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
     @Override
-    public Map createOqcRequest(OqcRequestVo oqcRequestVo) {
+    public Map createOqcRequest(OqcRequestVo oqcRequestVo) throws MessagingException, UnsupportedEncodingException {
 
         // TODO
 
@@ -82,6 +99,7 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
             oqcReq.setCreatedBy(oqcRequestVo.getCreatedBy());
             oqcReq.setSortingQty(oqcRequestVo.getSortingQty());
             oqcReq.setRemark(oqcRequestVo.getRemark());
+            oqcReq.setIsSpecialRequest(oqcRequestVo.getIsSpecialRequest());
             oqcReq.setDeliveryDate(oqcRequestVo.getDeliveryDate());
             oqcReq.setFlag(1);
             OqcRequest data = this.oqcRequestRepo.save(oqcReq);
@@ -105,10 +123,13 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
         oqcReq.setCreatedBy(oqcRequestVo.getCreatedBy());
         oqcReq.setSortingQty(null);
         oqcReq.setRemark(oqcRequestVo.getRemark());
+        oqcReq.setIsSpecialRequest(oqcRequestVo.getIsSpecialRequest());
         oqcReq.setDeliveryDate(oqcRequestVo.getDeliveryDate());
         oqcReq.setFlag(1);
 
         OqcRequest data = this.oqcRequestRepo.save(oqcReq);
+
+        this.sendEmail(data);
 
         Map result = new HashMap();
         result.put("status","OK");
@@ -116,6 +137,52 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
         result.put("data", data);
 
         return result;
+    }
+
+    /**
+     * Gửi email để phê duyệt cho các request là Abnormal
+     * @param oqcRequest
+     * @throws MessagingException
+     * @throws UnsupportedEncodingException
+     */
+    private void sendEmail(OqcRequest oqcRequest) throws MessagingException, UnsupportedEncodingException {
+        /**
+         * Gửi email: Trường hợp nếu request cần phải xác nhận
+         */
+        if (oqcRequest.getIsSpecialRequest() == 1) {
+
+            pidvn.modules.qa.oqc_check.models.SearchVo searchVo = new pidvn.modules.qa.oqc_check.models.SearchVo();
+            searchVo.setReqNo(oqcRequest.getReqNo());
+            pidvn.modules.qa.oqc_check.models.OqcRequestVo obj = this.oqcCheckMapper.getOqcRequests(searchVo).get(0);
+
+
+            // TODO: Gửi email
+            MimeMessage message = this.mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
+
+
+            // Gán biến động vào template
+            Context context = new Context();
+            context.setVariable("reqId", obj.getId());
+            context.setVariable("reqNo", obj.getReqNo());
+            context.setVariable("model", obj.getModel());
+            context.setVariable("qaCard", obj.getQaCard());
+            context.setVariable("dateCode", obj.getDateCode());
+            context.setVariable("qty", obj.getQty());
+            context.setVariable("createdBy", obj.getCreatedBy());
+            context.setVariable("createdByName", obj.getCreatedByName());
+            context.setVariable("remark", obj.getRemark());
+
+            String htmlContent = this.templateEngine.process("oqc-accept-request-template", context);
+
+            helper.setFrom("it.pidvn@vn.panasonic.com", "IT PIDVN");
+            String subject = "[OQC-REQUEST]" + "[" + obj.getReqNo() + "]" + " - Thông báo phê duyệt OQC request";
+            helper.setSubject(subject);
+            helper.setTo("canhhung.nguyen@vn.panasonic.com");
+            helper.setCc("canhhung.nguyen@vn.panasonic.com");
+            helper.setText(htmlContent, true); // true => HTML
+            this.mailSender.send(message);
+        }
     }
 
     @Override

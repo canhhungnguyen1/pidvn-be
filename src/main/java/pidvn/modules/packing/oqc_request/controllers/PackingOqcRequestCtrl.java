@@ -8,6 +8,9 @@ import pidvn.modules.packing.oqc_request.models.OqcRequestVo;
 import pidvn.modules.packing.oqc_request.models.SearchVo;
 import pidvn.modules.packing.oqc_request.services.PackingOqcRequestSvc;
 
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
+
 
 @RestController
 @RequestMapping("Packing/OqcRequest")
@@ -16,8 +19,13 @@ public class PackingOqcRequestCtrl {
     @Autowired
     private PackingOqcRequestSvc packingOqcRequestSvc;
 
+    /**
+     * API: Packing/OqcRequest/Request
+     * @param oqcRequestVo
+     * @return
+     */
     @PostMapping("Request")
-    public ResponseEntity<?> createOqcRequest(@RequestBody OqcRequestVo oqcRequestVo) {
+    public ResponseEntity<?> createOqcRequest(@RequestBody OqcRequestVo oqcRequestVo) throws MessagingException, UnsupportedEncodingException {
         return new ResponseEntity<>(this.packingOqcRequestSvc.createOqcRequest(oqcRequestVo), HttpStatus.OK);
     }
 
