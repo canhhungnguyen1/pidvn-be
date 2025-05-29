@@ -139,7 +139,12 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
         return result;
     }
 
-
+    /**
+     * Gửi email để phê duyệt cho các request là Abnormal
+     * @param oqcRequest
+     * @throws MessagingException
+     * @throws UnsupportedEncodingException
+     */
     private void sendEmail(OqcRequest oqcRequest) throws MessagingException, UnsupportedEncodingException {
         /**
          * Gửi email: Trường hợp nếu request cần phải xác nhận
