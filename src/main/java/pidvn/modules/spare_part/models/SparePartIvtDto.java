@@ -13,7 +13,7 @@ public class SparePartIvtDto {
     private String createdByName;
     private Date createdAt;
     private Date updatedAt;
-    private String inventoryCloseDate;
+    private Date inventoryCloseDate;
     private String remark;
 
     public Integer getId() {
@@ -96,11 +96,11 @@ public class SparePartIvtDto {
         this.updatedAt = updatedAt;
     }
 
-    public String getInventoryCloseDate() {
+    public Date getInventoryCloseDate() {
         return inventoryCloseDate;
     }
 
-    public void setInventoryCloseDate(String inventoryCloseDate) {
+    public void setInventoryCloseDate(Date inventoryCloseDate) {
         this.inventoryCloseDate = inventoryCloseDate;
     }
 

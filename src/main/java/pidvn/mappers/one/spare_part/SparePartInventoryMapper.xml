@@ -24,6 +24,7 @@
         <result column="created_by_name" property="createdByName" javaType="String"/>
         <result column="created_by" property="createdBy" javaType="String"/>
         <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="inventory_close_date" property="inventoryCloseDate" javaType="Date"/>
     </resultMap>
     <select id="getInventoryRequests" resultMap="getInventoryRequests-result">
         select A.*, B.name created_by_name from spare_part_inventory_request A
