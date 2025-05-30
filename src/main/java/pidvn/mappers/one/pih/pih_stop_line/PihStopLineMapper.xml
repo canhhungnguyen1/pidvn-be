@@ -52,6 +52,8 @@
         <result column="shift_id" property="shiftId" javaType="Integer"/>
         <result column="shift_name" property="shiftName" javaType="String"/>
         <result column="created_at" property="createdAt" javaType="Date"/>
+        <result column="num_box" property="numBox" javaType="String"/>
+
     </resultMap>
     <select id="getStopTimes" resultMap="getStopTimes-result">
 
@@ -79,7 +81,7 @@
                 select
                     T01.id, T01.stop_item_id item_id, T01.item_name, T01.line line_id, T01.line_name,
                     T01.start_time, T01.stop_time, T01.remark, T01.created_at, T01.shift_id, T01.model,
-                    T01.shift_name, T01.employee, T02.*, T01.issue_date date
+                    T01.shift_name, T01.employee, T02.*, T01.issue_date date, T01.num_box
                 from T01
                 left join T02 on T01.group_id = T02.group_id
             )

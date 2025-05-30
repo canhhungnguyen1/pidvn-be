@@ -22,6 +22,7 @@ public class StopTime {
     private Integer typeId;
     private String typeName;
     private String model;
+    private String numBox;
 
     public Integer getId() {
         return id;
@@ -173,5 +174,13 @@ public class StopTime {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public String getNumBox() {
+        return numBox;
+    }
+
+    public void setNumBox(String numBox) {
+        this.numBox = numBox;
     }
 }
