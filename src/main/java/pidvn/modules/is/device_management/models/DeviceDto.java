@@ -30,6 +30,7 @@ public class DeviceDto {
     private String locationName;
     private Integer locationId;
     private String locationCode;
+    private String ram;
 
     public Integer getId() {
         return id;
@@ -245,5 +246,13 @@ public class DeviceDto {
 
     public void setLocationCode(String locationCode) {
         this.locationCode = locationCode;
+    }
+
+    public String getRam() {
+        return ram;
+    }
+
+    public void setRam(String ram) {
+        this.ram = ram;
     }
 }
