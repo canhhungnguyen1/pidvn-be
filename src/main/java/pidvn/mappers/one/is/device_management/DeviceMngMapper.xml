@@ -19,6 +19,7 @@
         <result column="location_name" property="locationName" javaType="String"/>
         <result column="transaction_remark" property="transactionRemark" javaType="String"/>
         <result column="transaction_date" property="transactionDate" javaType="Date"/>
+        <result column="end_date" property="endDate" javaType="Date"/>
 
     </resultMap>
     <select id="getDevices" resultMap="getDevices-result">
@@ -40,7 +41,7 @@
         -- Thông tin transaction
         T02 as (
             select
-                A.id transaction_id, A.device_name, A.it_user_code, it_user.name it_user_name, A.record_type, A.date,
+                A.id transaction_id, A.device_name, A.it_user_code, it_user.name it_user_name, A.record_type, A.date, A.end_date,
                 CASE
                     WHEN A.record_type = 'IN' THEN 'Nhận lại'
                     WHEN A.record_type = 'OUT' THEN 'Bàn giao'
@@ -59,7 +60,7 @@
         )
         select
             T03.id, T03.name, T03.serial, T03.model, T03.type, T03.os, T03.ram, T03.purchase_date, T03.brand,T03.remark,T03.fa_code, T03.transaction_id,
-            T02.record_type, T02.record_type_name, T02.date transaction_date, T02.it_user_code, T02.it_user_name,
+            T02.record_type, T02.record_type_name, T02.date transaction_date, T02.it_user_code, T02.it_user_name, T02.end_date,
             if(T02.pic_code2 is null, T03.pic_code, T02.pic_code2) pic_code,
             if(T02.pic_name2 is null, T03.pic_name, T02.pic_name2) pic_name,
             if(T02.location_code2 is null, T03.location_code, T02.location_code2) location_code,

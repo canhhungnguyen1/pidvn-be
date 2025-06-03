@@ -31,6 +31,7 @@ public class DeviceDto {
     private Integer locationId;
     private String locationCode;
     private String ram;
+    private Date endDate;
 
     public Integer getId() {
         return id;
@@ -254,5 +255,13 @@ public class DeviceDto {
 
     public void setRam(String ram) {
         this.ram = ram;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }
