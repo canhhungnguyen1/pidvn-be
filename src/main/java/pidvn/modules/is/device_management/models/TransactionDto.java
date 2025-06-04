@@ -18,8 +18,7 @@ public class TransactionDto {
     private String picSectionName;
     private String picSubsectionCode;
     private String picSubsectionName;
-    private Date startDate;
-    private Date endDate;
+    private Date expectedReturnDate;
 
     public Integer getId() {
         return id;
@@ -141,19 +140,11 @@ public class TransactionDto {
         this.picSubsectionName = picSubsectionName;
     }
 
-    public Date getStartDate() {
-        return startDate;
+    public Date getExpectedReturnDate() {
+        return expectedReturnDate;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setExpectedReturnDate(Date expectedReturnDate) {
+        this.expectedReturnDate = expectedReturnDate;
     }
 }

@@ -31,7 +31,7 @@ public class DeviceDto {
     private Integer locationId;
     private String locationCode;
     private String ram;
-    private Date endDate;
+    private Date expectedReturnDate;
 
     public Integer getId() {
         return id;
@@ -257,11 +257,11 @@ public class DeviceDto {
         this.ram = ram;
     }
 
-    public Date getEndDate() {
-        return endDate;
+    public Date getExpectedReturnDate() {
+        return expectedReturnDate;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setExpectedReturnDate(Date expectedReturnDate) {
+        this.expectedReturnDate = expectedReturnDate;
     }
 }
