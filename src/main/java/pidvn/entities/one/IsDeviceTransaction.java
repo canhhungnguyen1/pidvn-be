@@ -35,8 +35,8 @@ public class IsDeviceTransaction {
     @Column(name = "date")
     private Date date;
 
-    @Column(name = "location_id")
-    private Integer locationId;
+    @Column(name = "location_code")
+    private String locationCode;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -102,12 +102,12 @@ public class IsDeviceTransaction {
         this.date = date;
     }
 
-    public Integer getLocationId() {
-        return locationId;
+    public String getLocationCode() {
+        return locationCode;
     }
 
-    public void setLocationId(Integer locationId) {
-        this.locationId = locationId;
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
     }
 
     public Date getCreatedAt() {
