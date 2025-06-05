@@ -5,6 +5,7 @@ import java.util.Date;
 public class DeviceDto {
     private Integer id;
     private String name;
+    private String serial;
     private String model;
     private String type;
     private String os;
@@ -24,9 +25,13 @@ public class DeviceDto {
     private String subsectionName;
     private String remark;
     private String transactionRemark;
+    private Date transactionDate;
     private String brand;
     private String locationName;
     private Integer locationId;
+    private String locationCode;
+    private String ram;
+    private Date expectedReturnDate;
 
     public Integer getId() {
         return id;
@@ -42,6 +47,14 @@ public class DeviceDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSerial() {
+        return serial;
+    }
+
+    public void setSerial(String serial) {
+        this.serial = serial;
     }
 
     public String getModel() {
@@ -196,6 +209,14 @@ public class DeviceDto {
         this.transactionRemark = transactionRemark;
     }
 
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
     public String getBrand() {
         return brand;
     }
@@ -218,5 +239,29 @@ public class DeviceDto {
 
     public void setLocationId(Integer locationId) {
         this.locationId = locationId;
+    }
+
+    public String getLocationCode() {
+        return locationCode;
+    }
+
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
+    }
+
+    public String getRam() {
+        return ram;
+    }
+
+    public void setRam(String ram) {
+        this.ram = ram;
+    }
+
+    public Date getExpectedReturnDate() {
+        return expectedReturnDate;
+    }
+
+    public void setExpectedReturnDate(Date expectedReturnDate) {
+        this.expectedReturnDate = expectedReturnDate;
     }
 }

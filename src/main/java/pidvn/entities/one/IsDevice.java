@@ -32,8 +32,8 @@ public class IsDevice {
     @Column(name = "brand")
     private String brand;
 
-    @Column(name = "location_id")
-    private Integer locationId;
+    @Column(name = "location_code")
+    private String locationCode;
 
     @Column(name = "fa_code")
     private String faCode;
@@ -100,12 +100,12 @@ public class IsDevice {
         this.brand = brand;
     }
 
-    public Integer getLocationId() {
-        return locationId;
+    public String getLocationCode() {
+        return locationCode;
     }
 
-    public void setLocationId(Integer locationId) {
-        this.locationId = locationId;
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
     }
 
     public String getFaCode() {

@@ -15,39 +15,61 @@
         <result column="pic_name" property="picName" javaType="String"/>
         <result column="section_name" property="sectionName" javaType="String"/>
         <result column="subsection_name" property="subsectionName" javaType="String"/>
+        <result column="location_code" property="locationCode" javaType="String"/>
         <result column="location_name" property="locationName" javaType="String"/>
         <result column="transaction_remark" property="transactionRemark" javaType="String"/>
+        <result column="transaction_date" property="transactionDate" javaType="Date"/>
+        <result column="expected_return_date" property="expectedReturnDate" javaType="Date"/>
     </resultMap>
     <select id="getDevices" resultMap="getDevices-result">
         <![CDATA[
-            with
-            T01 as (
-                select C.username, C.name, C.subsection_name, C.section_name from (
-                  select A.*, B.subsection_name, B.section_name from users A
-                  left join (
-                      select A.id, A.name subsection_name, B.name section_name from subsection A
-                      left join section B on A.section_id = B.id
-                  ) B on A.subsection_id = B.id where 1=1 and A.status = 1
-                ) C
-            ),
-            T02 as (
-                select
-                    T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name, t.pic_code, A.name location_name,
-                    pic_user.name AS pic_name, t.date, pic_user.section_name, pic_user.subsection_name, t.remark
-                from is_device_transaction T
-                join T01 it_user ON T.it_user_code = it_user.username
-                join T01 pic_user ON t.pic_code = pic_user.username
-                left join is_device_location A on T.location_id = A.id
-            )
+        with
+        -- Thông tin master (user, section)
+        T01 as (
+            select C.username, C.name, C.subsection_name, C.section_name, C.subsection_code, C.section_code  from (
+              select A.*, B.subsection_name, B.section_name, B.section_code, B.subsection_code
+              from users A
+                       left join (
+                  select
+                      A.id, A.name subsection_name, A.code subsection_code, B.name section_name, B.code section_code
+                  from subsection A
+                           left join section B on A.section_id = B.id
+              ) B on A.subsection_id = B.id where 1=1 and A.status = 1
+          ) C
+        ),
+        -- Thông tin transaction
+        T02 as (
             select
-                A.*, T02.record_type, T02.it_user_code, T02.it_user_name, T02.pic_code, T02.location_name,
-                T02.pic_name, T02.date, T02.section_name, T02.subsection_name, T02.remark transaction_remark,
+                A.id transaction_id, A.device_name, A.it_user_code, it_user.name it_user_name,
+                A.record_type, A.date, A.expected_return_date,A.remark transaction_remark,
                 CASE
-                    WHEN record_type = 'IN' THEN 'Nhận lại'
-                    WHEN record_type = 'OUT' THEN 'Bàn giao'
-                END AS record_type_name
+                    WHEN A.record_type = 'IN' THEN 'Nhận lại (IN)'
+                    WHEN A.record_type = 'OUT' THEN 'Bàn giao (OUT)'
+                    END record_type_name,
+                A.location_code location_code2, pic_user.name pic_name2, A.pic_code pic_code2,
+                pic_user.section_name pic_section_name2, pic_user.section_code pic_section_code2
+            from is_device_transaction A
+            join T01 it_user on A.it_user_code = it_user.username
+            join T01 pic_user on A.pic_code = pic_user.username
+        ),
+        -- Thông tin device
+        T03 as (
+            select A.*, T01.name pic_name, T01.section_code,T01.section_name
             from is_device A
-            left join T02 on A.transaction_id = T02.id
+            left join T01 on A.pic_code = T01.username
+        )
+        select
+            T03.id, T03.name, T03.serial, T03.model, T03.type, T03.os, T03.ram,
+            T03.purchase_date, T03.brand,T03.remark,T03.fa_code, T03.transaction_id,
+            T02.record_type, T02.record_type_name, T02.date transaction_date, T02.it_user_code,
+            T02.it_user_name, T02.expected_return_date, T02.transaction_remark,
+            if(T02.pic_code2 is null, T03.pic_code, T02.pic_code2) pic_code,
+            if(T02.pic_name2 is null, T03.pic_name, T02.pic_name2) pic_name,
+            if(T02.location_code2 is null, T03.location_code, T02.location_code2) location_code,
+            if(T02.pic_section_code2 is null, T03.section_code, T02.pic_section_code2) section_code,
+            if(T02.pic_section_name2 is null, CONCAT("(",T03.section_code, ") ",T03.section_name), CONCAT("(",T02.pic_section_code2,") ",T02.pic_section_name2)) section_name
+        from T03
+        left join T02 on T03.transaction_id = T02.transaction_id
         ]]>
     </select>
 
@@ -68,41 +90,67 @@
         <result column="it_user_name" property="itUserName" javaType="String"/>
         <result column="pic_code" property="picCode" javaType="String"/>
         <result column="pic_name" property="picName" javaType="String"/>
-        <result column="section_name" property="sectionName" javaType="String"/>
-        <result column="location_name" property="locationName" javaType="String"/>
+        <result column="location_code" property="locationCode" javaType="String"/>
+        <result column="pic_section_code" property="picSectionCode" javaType="String"/>
+        <result column="pic_section_name" property="picSectionName" javaType="String"/>
+        <result column="pic_subsection_code" property="picSubsectionCode" javaType="String"/>
+        <result column="pic_subsection_name" property="picSubsectionName" javaType="String"/>
+        <result column="expected_return_date" property="expectedReturnDate" javaType="Date"/>
     </resultMap>
     <select id="getDeviceTransactions" resultMap="getDeviceTransactions-result">
         <![CDATA[
         with
+        -- Thông tin master (user, section)
         T01 as (
-            select C.username, C.name, C.subsection_name, C.section_name from (
-                select A.*, B.subsection_name, B.section_name from users A
-                left join (
-                    select A.id, A.name subsection_name, B.name section_name from subsection A
-                    left join section B on A.section_id = B.id
-                ) B on A.subsection_id = B.id
+            select C.username, C.name, C.subsection_name, C.section_name, C.subsection_code, C.section_code
+            from (
+                select A.*, B.subsection_name, B.section_name, B.section_code, B.subsection_code
+                from users A
+                       left join (
+                  select
+                      A.id, A.name subsection_name, A.code subsection_code, B.name section_name, B.code section_code
+                  from subsection A
+                           left join section B on A.section_id = B.id
+                ) B on A.subsection_id = B.id where 1=1 and A.status = 1
             ) C
         ),
+        -- Thông tin transaction
         T02 as (
-            select
-                T.id, t.device_name, t.record_type, t.it_user_code, it_user.name AS it_user_name,
-                t.pic_code, pic_user.name AS pic_name, t.date, pic_user.section_name, T.remark, L.name location_name
-            from is_device_transaction T
-            join T01 it_user ON T.it_user_code = it_user.username
-            join T01 pic_user ON t.pic_code = pic_user.username
-            left join is_device_location L on T.location_id = L.id
-        )
         select
-            T02.*, A.model, A.type,
+            A.*, it_user.name it_user_name,
             CASE
-                WHEN record_type = 'IN' THEN 'Nhận lại'
-                WHEN record_type = 'OUT' THEN 'Bàn giao'
-            END AS record_type_name
-        from T02
-        left join is_device A on T02.device_name = A.name
-        order by T02.id desc
+                WHEN A.record_type = 'IN' THEN 'Nhận lại (IN)'
+                WHEN A.record_type = 'OUT' THEN 'Bàn giao (OUT)'
+                END record_type_name,
+            pic_user.name pic_name, pic_user.section_name pic_section_name, pic_user.section_code pic_section_code,
+            pic_user.subsection_name pic_subsection_name, pic_user.subsection_code pic_subsection_code
+        from is_device_transaction A
+         join T01 it_user on A.it_user_code = it_user.username
+         join T01 pic_user on A.pic_code = pic_user.username
+        )
+        select * from T02 order by T02.id desc
         ]]>
     </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     <resultMap id="getInventoryData-result"

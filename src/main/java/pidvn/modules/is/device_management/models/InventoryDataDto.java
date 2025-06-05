@@ -10,7 +10,7 @@ public class InventoryDataDto {
     private String createdBy;
     private String createdByName;
     private String locationName;
-    private Integer locationId;
+    private String locationCode;
     private Date createdAt;
     private String remark;
 
@@ -70,12 +70,12 @@ public class InventoryDataDto {
         this.locationName = locationName;
     }
 
-    public Integer getLocationId() {
-        return locationId;
+    public String getLocationCode() {
+        return locationCode;
     }
 
-    public void setLocationId(Integer locationId) {
-        this.locationId = locationId;
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
     }
 
     public Date getCreatedAt() {

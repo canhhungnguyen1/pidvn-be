@@ -100,7 +100,7 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
         // 3. Cập nhật thông tin thiết bị
         device.setTransactionId(savedTransaction.getId());
-        device.setLocationId(savedTransaction.getLocationId());
+        device.setLocationCode(savedTransaction.getLocationCode());
         IsDevice updatedDevice = isDeviceRepo.save(device);
 
         // 4. Gửi email thông báo
@@ -138,8 +138,8 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
 
         // Cập nhật location nếu cần
         IsDevice device = isDeviceRepo.findByName(ivtData.getDeviceName());
-        if (!Objects.equals(device.getLocationId(), ivtDataDto.getLocationId())) {
-            device.setLocationId(ivtDataDto.getLocationId());
+        if (!Objects.equals(device.getLocationCode(), ivtDataDto.getLocationCode())) {
+            device.setLocationCode(ivtDataDto.getLocationCode());
             isDeviceRepo.save(device);
         }
 

@@ -176,7 +176,7 @@ public class PackingOqcRequestSvc implements IPackingOqcRequest {
             String htmlContent = this.templateEngine.process("oqc-accept-request-template", context);
 
             helper.setFrom("it.pidvn@vn.panasonic.com", "IT PIDVN");
-            String subject = "[OQC-REQUEST]" + "[" + obj.getReqNo() + "]" + " - Thông báo phê duyệt OQC request";
+            String subject = "[OQC]" + "[" + obj.getReqNo() + "]" + " - Thông báo phê duyệt OQC request";
             helper.setSubject(subject);
             helper.setTo("canhhung.nguyen@vn.panasonic.com");
             helper.setCc("canhhung.nguyen@vn.panasonic.com");

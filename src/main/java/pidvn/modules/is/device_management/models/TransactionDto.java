@@ -12,10 +12,13 @@ public class TransactionDto {
     private String picCode;
     private String picName;
     private Date date;
-    private String sectionName;
     private String remark;
-    private Integer locationId;
-    private String locationName;
+    private String locationCode;
+    private String picSectionCode;
+    private String picSectionName;
+    private String picSubsectionCode;
+    private String picSubsectionName;
+    private Date expectedReturnDate;
 
     public Integer getId() {
         return id;
@@ -89,14 +92,6 @@ public class TransactionDto {
         this.date = date;
     }
 
-    public String getSectionName() {
-        return sectionName;
-    }
-
-    public void setSectionName(String sectionName) {
-        this.sectionName = sectionName;
-    }
-
     public String getRemark() {
         return remark;
     }
@@ -105,19 +100,51 @@ public class TransactionDto {
         this.remark = remark;
     }
 
-    public Integer getLocationId() {
-        return locationId;
+    public String getLocationCode() {
+        return locationCode;
     }
 
-    public void setLocationId(Integer locationId) {
-        this.locationId = locationId;
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
     }
 
-    public String getLocationName() {
-        return locationName;
+    public String getPicSectionCode() {
+        return picSectionCode;
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
+    public void setPicSectionCode(String picSectionCode) {
+        this.picSectionCode = picSectionCode;
+    }
+
+    public String getPicSectionName() {
+        return picSectionName;
+    }
+
+    public void setPicSectionName(String picSectionName) {
+        this.picSectionName = picSectionName;
+    }
+
+    public String getPicSubsectionCode() {
+        return picSubsectionCode;
+    }
+
+    public void setPicSubsectionCode(String picSubsectionCode) {
+        this.picSubsectionCode = picSubsectionCode;
+    }
+
+    public String getPicSubsectionName() {
+        return picSubsectionName;
+    }
+
+    public void setPicSubsectionName(String picSubsectionName) {
+        this.picSubsectionName = picSubsectionName;
+    }
+
+    public Date getExpectedReturnDate() {
+        return expectedReturnDate;
+    }
+
+    public void setExpectedReturnDate(Date expectedReturnDate) {
+        this.expectedReturnDate = expectedReturnDate;
     }
 }
