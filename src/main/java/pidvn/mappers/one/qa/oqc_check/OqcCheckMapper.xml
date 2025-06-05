@@ -86,7 +86,7 @@
 
         <if test="isAbnormal">
             and T02.is_special_request = 1
-            and T02.accepted_result is null
+            -- and T02.accepted_result is null
         </if>
 
 
