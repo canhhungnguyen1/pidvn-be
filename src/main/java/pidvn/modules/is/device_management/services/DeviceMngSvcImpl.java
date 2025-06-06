@@ -65,6 +65,24 @@ public class DeviceMngSvcImpl implements DeviceMngSvc {
         return this.modelMapper.map(this.isDeviceRepo.findByName(deviceName), DeviceDto.class);
     }
 
+    @Override
+    public DeviceDto createDevice(DeviceDto deviceDto) {
+
+        // 1. Tìm thiết bị liên quan
+        IsDevice device = isDeviceRepo.findByName(deviceDto.getName());
+        if (device != null) {
+            // Nếu thiết bị đã tồn tại, trả về thông báo lỗi
+            throw new RuntimeException("Thiết bị đã tồn tại: " + deviceDto.getName());
+        }
+
+        // 2. Map DTO -> entity và lưu thiết bị mới
+        device = modelMapper.map(deviceDto, IsDevice.class);
+        IsDevice savedDevice = isDeviceRepo.save(device);
+
+        // 3. Map entity -> DTO và trả về kết quả
+        return modelMapper.map(savedDevice, DeviceDto.class);
+    }
+
 
     @Override
     public List<IsDeviceLocation> getLocations() {

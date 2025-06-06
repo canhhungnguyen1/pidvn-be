@@ -58,6 +58,27 @@ public class DeviceMngCtrl {
     }
 
     /**
+     * API: IS/DeviceManagement/Devices
+     * @param deviceDto
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("Device")
+    public ResponseEntity<ApiResponse<?>> createDevice(@RequestBody DeviceDto deviceDto) {
+        ApiResponse<DeviceDto> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.createDevice(deviceDto));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PutMapping("Device")
+    public ResponseEntity<ApiResponse<?>> updateDevice(@RequestBody DeviceDto deviceDto) {
+        ApiResponse<DeviceDto> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(this.deviceMngSvc.createDevice(deviceDto));
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+
+    /**
      * API: IS/DeviceManagement/Devices/{deviceName}
      * @param deviceName
      * @return

@@ -70,6 +70,7 @@
             if(T02.pic_section_name2 is null, CONCAT("(",T03.section_code, ") ",T03.section_name), CONCAT("(",T02.pic_section_code2,") ",T02.pic_section_name2)) section_name
         from T03
         left join T02 on T03.transaction_id = T02.transaction_id
+        order by T03.id desc
         ]]>
     </select>
 

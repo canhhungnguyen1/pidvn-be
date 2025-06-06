@@ -14,6 +14,9 @@ public interface DeviceMngSvc {
     List<UserDto> getUsers();
     List<DeviceDto> getDevices();
     DeviceDto getDevice(String deviceName) throws Exception;
+    DeviceDto createDevice(DeviceDto deviceDto);
+
+
     List<TransactionDto> getDeviceTransactions();
     Map<String, Object> saveTransaction(TransactionDto transactionDto) throws MessagingException, UnsupportedEncodingException;
     InventoryRequestDto createInventoryRequest(InventoryRequestDto inventoryRequestDto);
